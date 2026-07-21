@@ -1,8 +1,14 @@
+/**
+ * アプリの概要と主要画面への導線を表示するホーム画面。
+ */
+
 import Link from 'next/link';
 
 import { PageHeader } from '@/components/common/page-header';
+import { Panel } from '@/components/common/panel';
 import { APP_DESCRIPTION, APP_NAME, TARGET_COMPETITION } from '@/lib/constants';
 
+/** ホーム画面から移動できる主要機能。 */
 const navigationCards = [
   {
     href: '/matches',
@@ -16,46 +22,52 @@ const navigationCards = [
   },
 ] as const;
 
+/** アプリの目的、対象範囲、主要画面へのリンクを表示する。 */
 export default function Home() {
   return (
-    <div className="space-y-10">
+    <div className="space-y-section">
       <PageHeader title={APP_NAME} description={APP_DESCRIPTION} />
 
+      {/* 対象リーグとシーズンを、固定値から表示する。 */}
       <section aria-labelledby="target-competition-title">
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 id="target-competition-title" className="text-lg font-semibold text-slate-950">
+        <Panel>
+          <h2 id="target-competition-title" className="text-text text-lg font-semibold">
             対象範囲
           </h2>
+
           <dl className="mt-5 grid gap-5 sm:grid-cols-2">
             <div>
-              <dt className="text-sm font-medium text-slate-500">リーグ</dt>
-              <dd className="mt-1 text-base font-semibold text-slate-950">
+              <dt className="text-muted text-sm font-medium">リーグ</dt>
+              <dd className="text-text mt-1 text-base font-semibold">
                 {TARGET_COMPETITION.league}
               </dd>
             </div>
+
             <div>
-              <dt className="text-sm font-medium text-slate-500">シーズン</dt>
-              <dd className="mt-1 text-base font-semibold text-slate-950">
+              <dt className="text-muted text-sm font-medium">シーズン</dt>
+              <dd className="text-text mt-1 text-base font-semibold">
                 {TARGET_COMPETITION.season}
               </dd>
             </div>
           </dl>
-        </div>
+        </Panel>
       </section>
 
+      {/* 試合一覧と場面一覧の基本 Route への導線を表示する。 */}
       <section aria-labelledby="navigation-title">
-        <h2 id="navigation-title" className="text-xl font-semibold text-slate-950">
+        <h2 id="navigation-title" className="text-text text-xl font-semibold">
           アプリを見る
         </h2>
-        <div className="mt-5 grid gap-5 sm:grid-cols-2">
+
+        <div className="gap-section mt-5 grid sm:grid-cols-2">
           {navigationCards.map((card) => (
             <Link
               key={card.href}
               href={card.href}
-              className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-slate-900"
+              className="rounded-panel border-border bg-surface p-panel shadow-panel hover:border-border-strong focus-visible:outline-focus border transition focus-visible:outline-2 focus-visible:outline-offset-2"
             >
-              <h3 className="text-lg font-semibold text-slate-950">{card.title}</h3>
-              <p className="mt-2 text-sm leading-6 text-slate-600">{card.description}</p>
+              <h3 className="text-text text-lg font-semibold">{card.title}</h3>
+              <p className="text-muted mt-2 text-sm leading-6">{card.description}</p>
             </Link>
           ))}
         </div>
