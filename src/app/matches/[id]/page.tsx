@@ -10,6 +10,7 @@ import { PageHeader } from '@/components/common/page-header';
 import { MatchDetail } from '@/components/matches/match-detail';
 import { MatchMomentList } from '@/components/matches/match-moment-list';
 import { formatFixture } from '@/lib/format';
+import { parsePositiveIntegerId } from '@/lib/validation/id';
 import { getMatchById } from '@/server/data-access/matches';
 import { getMomentsByMatchId } from '@/server/data-access/moments';
 
@@ -26,22 +27,10 @@ export const metadata: Metadata = {
   title: '試合詳細',
 };
 
-/** URL の ID を、DB 検索に使用できる正の安全な整数へ変換する。 */
-function parseMatchId(value: string): number | null {
-  // 符号、小数、指数表記、前後の空白を許可せず、URL として明確な整数形式だけを受け付ける。
-  if (!/^[1-9]\d*$/.test(value)) {
-    return null;
-  }
-
-  const id = Number(value);
-
-  return Number.isSafeInteger(id) ? id : null;
-}
-
 /** 試合情報と関連する場面を取得し、存在しない場合は試合用の 404 を表示する。 */
 export default async function MatchDetailPage({ params }: MatchDetailPageProps) {
   const { id: idParam } = await params;
-  const matchId = parseMatchId(idParam);
+  const matchId = parsePositiveIntegerId(idParam);
 
   if (matchId === null) {
     notFound();
