@@ -23,3 +23,9 @@ export type Match = {
   /** ISO 形式へ変換した更新日時。 */
   updatedAt: string;
 };
+
+/** 一覧画面と詳細画面で使用する、関連する場面数を含んだ試合データ。 */
+export type MatchWithMomentCount = Match & {
+  /** 試合へ関連付けられている場面の件数。 */
+  momentCount: number;
+};
