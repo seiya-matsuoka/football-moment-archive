@@ -12,6 +12,7 @@ const panelToneClassNames = {
   default: 'border-border bg-surface',
   muted: 'border-border bg-surface-muted',
   accent: 'border-accent bg-surface',
+  error: 'border-error-border bg-error-background text-error',
 } as const;
 
 type PanelTone = keyof typeof panelToneClassNames;
