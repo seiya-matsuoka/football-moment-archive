@@ -1,13 +1,13 @@
 import 'server-only';
 
 /**
- * `matches` テーブルを中心とした参照処理を提供する Data Access Layer。
+ * `matches` テーブルを中心とした参照・更新処理を提供する Data Access Layer。
  * SQL、DB 行の型、アプリ用型への変換をこのファイル内へまとめる。
  */
 
 import { isTeamCode } from '@/lib/constants';
 import { sql } from '@/server/db/client';
-import type { Match, MatchWithMomentCount } from '@/types/match';
+import type { Match, MatchInput, MatchWithMomentCount } from '@/types/match';
 
 /** `matches` テーブルから取得する DB 行。 */
 type MatchRow = {
@@ -29,6 +29,11 @@ type MatchWithMomentCountRow = MatchRow & {
 /** `COUNT` の結果を整数として受け取る DB 行。 */
 type CountRow = {
   count: number;
+};
+
+/** 削除した行の ID を受け取る DB 行。 */
+type DeletedMatchRow = {
+  id: number;
 };
 
 /** PostgreSQL の `DATE` を、アプリで使用する `YYYY-MM-DD` 形式へ変換する。 */
@@ -127,4 +132,76 @@ export async function getMatchById(id: number): Promise<MatchWithMomentCount | n
   `;
 
   return row ? toMatchWithMomentCount(row) : null;
+}
+
+/** 検証済みの入力値を使用して試合を登録する。 */
+export async function createMatch(input: MatchInput): Promise<Match> {
+  const [row] = await sql<MatchRow[]>`
+    INSERT INTO matches (
+      home_team_code,
+      away_team_code,
+      match_date,
+      home_score,
+      away_score
+    )
+    VALUES (
+      ${input.homeTeamCode},
+      ${input.awayTeamCode},
+      ${input.matchDate},
+      ${input.homeScore},
+      ${input.awayScore}
+    )
+    RETURNING
+      id,
+      home_team_code,
+      away_team_code,
+      match_date,
+      home_score,
+      away_score,
+      created_at,
+      updated_at
+  `;
+
+  if (!row) {
+    throw new Error('Failed to create match.');
+  }
+
+  return toMatch(row);
+}
+
+/** 指定された試合を更新し、対象が存在しない場合は `null` を返す。 */
+export async function updateMatchById(id: number, input: MatchInput): Promise<Match | null> {
+  const [row] = await sql<MatchRow[]>`
+    UPDATE matches
+    SET
+      home_team_code = ${input.homeTeamCode},
+      away_team_code = ${input.awayTeamCode},
+      match_date = ${input.matchDate},
+      home_score = ${input.homeScore},
+      away_score = ${input.awayScore},
+      updated_at = CURRENT_TIMESTAMP
+    WHERE id = ${id}
+    RETURNING
+      id,
+      home_team_code,
+      away_team_code,
+      match_date,
+      home_score,
+      away_score,
+      created_at,
+      updated_at
+  `;
+
+  return row ? toMatch(row) : null;
+}
+
+/** 指定された試合を削除し、削除対象が存在したかを返す。 */
+export async function deleteMatchById(id: number): Promise<boolean> {
+  const [row] = await sql<DeletedMatchRow[]>`
+    DELETE FROM matches
+    WHERE id = ${id}
+    RETURNING id
+  `;
+
+  return Boolean(row);
 }
