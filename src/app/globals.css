@@ -18,6 +18,11 @@
   --app-color-notice-background: #fffbeb;
   --app-color-notice-border: #fde68a;
   --app-color-notice-text: #78350f;
+  --app-color-danger: #b91c1c;
+  --app-color-danger-foreground: #ffffff;
+  --app-color-error: #991b1b;
+  --app-color-error-background: #fef2f2;
+  --app-color-error-border: #fecaca;
 
   /* 角丸 */
   --app-radius-control: 0.375rem;
@@ -51,6 +56,11 @@
   --color-notice-background: var(--app-color-notice-background);
   --color-notice-border: var(--app-color-notice-border);
   --color-notice-text: var(--app-color-notice-text);
+  --color-danger: var(--app-color-danger);
+  --color-danger-foreground: var(--app-color-danger-foreground);
+  --color-error: var(--app-color-error);
+  --color-error-background: var(--app-color-error-background);
+  --color-error-border: var(--app-color-error-border);
 
   /* 角丸 */
   --radius-control: var(--app-radius-control);

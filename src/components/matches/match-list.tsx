@@ -3,6 +3,7 @@
  */
 
 import { EmptyState } from '@/components/common/empty-state';
+import { LinkButton } from '@/components/common/link-button';
 import type { MatchWithMomentCount } from '@/types/match';
 
 import { MatchListItem } from './match-list-item';
@@ -15,7 +16,16 @@ type MatchListProps = {
 /** 試合が 0 件の場合の空状態、または試合 1 件ごとの表示を並べる。 */
 export function MatchList({ matches }: MatchListProps) {
   if (matches.length === 0) {
-    return <EmptyState message="まだ試合が登録されていません。" />;
+    return (
+      <EmptyState
+        message="まだ試合が登録されていません。"
+        actions={
+          <LinkButton href="/matches/new" variant="primary">
+            最初の試合を登録
+          </LinkButton>
+        }
+      />
+    );
   }
 
   return (

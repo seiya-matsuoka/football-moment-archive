@@ -1,5 +1,5 @@
 /**
- * 試合機能の画面とコンポーネントで共有する型を定義する。
+ * 試合機能の画面、Server Action、Data Access Layer で共有する型を定義する。
  */
 
 import type { TeamCode } from '@/lib/constants';
@@ -23,6 +23,12 @@ export type Match = {
   /** ISO 形式へ変換した更新日時。 */
   updatedAt: string;
 };
+
+/** 試合の登録・更新 SQL へ渡す、検証済みの入力値。 */
+export type MatchInput = Pick<
+  Match,
+  'homeTeamCode' | 'awayTeamCode' | 'matchDate' | 'homeScore' | 'awayScore'
+>;
 
 /** 一覧画面と詳細画面で使用する、関連する場面数を含んだ試合データ。 */
 export type MatchWithMomentCount = Match & {

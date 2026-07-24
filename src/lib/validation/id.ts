@@ -2,6 +2,11 @@
  * URL パラメーターや FormData などの外部入力から受け取った ID を検証する。
  */
 
+/** 数値が DB の ID として使用できる正の安全な整数であるかを判定する。 */
+export function isPositiveIntegerId(value: number): boolean {
+  return Number.isSafeInteger(value) && value > 0;
+}
+
 /**
  * 文字列を、DB の ID として使用できる正の安全な整数へ変換する。
  *
@@ -17,5 +22,5 @@ export function parsePositiveIntegerId(value: string): number | null {
   const id = Number(value);
 
   // JavaScript で整数として正確に扱える範囲を超える値は、DB 検索へ使用しない。
-  return Number.isSafeInteger(id) ? id : null;
+  return isPositiveIntegerId(id) ? id : null;
 }
