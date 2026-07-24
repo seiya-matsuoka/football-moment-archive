@@ -7,12 +7,15 @@ import { notFound } from 'next/navigation';
 
 import { LinkButton } from '@/components/common/link-button';
 import { PageHeader } from '@/components/common/page-header';
+import { MatchDeleteForm } from '@/components/matches/match-delete-form';
 import { MatchDetail } from '@/components/matches/match-detail';
 import { MatchMomentList } from '@/components/matches/match-moment-list';
 import { formatFixture } from '@/lib/format';
 import { parsePositiveIntegerId } from '@/lib/validation/id';
 import { getMatchById } from '@/server/data-access/matches';
 import { getMomentsByMatchId } from '@/server/data-access/moments';
+
+import { deleteMatchAction } from '../actions';
 
 type MatchDetailPageProps = {
   /** Next.js 16 では動的 Route のパラメーターを Promise として受け取る。 */
@@ -45,13 +48,21 @@ export default async function MatchDetailPage({ params }: MatchDetailPageProps) 
   // 試合の存在を確認してから、moments の Data Access Layer で関連場面を取得する。
   const moments = await getMomentsByMatchId(match.id);
   const fixture = formatFixture(match.homeTeamCode, match.awayTeamCode);
+  const deleteActionWithId = deleteMatchAction.bind(null, match.id);
 
   return (
     <div className="space-y-section">
       <PageHeader
         title={fixture}
         description="試合情報と、この試合に関連する場面を表示します。"
-        actions={<LinkButton href="/matches">試合一覧へ戻る</LinkButton>}
+        actions={
+          <>
+            <LinkButton href="/matches">試合一覧へ戻る</LinkButton>
+            <LinkButton href={`/matches/${match.id}/edit`} variant="primary">
+              試合を編集
+            </LinkButton>
+          </>
+        }
       />
 
       <MatchDetail match={match} />
@@ -70,6 +81,8 @@ export default async function MatchDetailPage({ params }: MatchDetailPageProps) 
 
         <MatchMomentList moments={moments} />
       </section>
+
+      <MatchDeleteForm action={deleteActionWithId} momentCount={match.momentCount} />
     </div>
   );
 }
