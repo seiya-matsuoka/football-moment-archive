@@ -5,9 +5,9 @@ import 'server-only';
  * SQL、DB 行の型、アプリ用型への変換をこのファイル内へまとめる。
  */
 
-import { isMomentType } from '@/lib/constants';
+import { isMomentType, isTeamCode } from '@/lib/constants';
 import { sql } from '@/server/db/client';
-import type { Moment } from '@/types/moment';
+import type { Moment, MomentMatch, MomentWithMatch } from '@/types/moment';
 
 /** `moments` テーブルから取得する DB 行。 */
 type MomentRow = {
@@ -23,6 +23,30 @@ type MomentRow = {
   created_at: Date;
   updated_at: Date;
 };
+
+/** 関連する試合の表示項目を JOIN した場面の DB 行。 */
+type MomentWithMatchRow = MomentRow & {
+  match_home_team_code: string;
+  match_away_team_code: string;
+  match_date: Date | null;
+  match_home_score: number | null;
+  match_away_score: number | null;
+};
+
+/** `COUNT` の結果を整数として受け取る DB 行。 */
+type CountRow = {
+  count: number;
+};
+
+/** PostgreSQL の `DATE` を、アプリで使用する `YYYY-MM-DD` 形式へ変換する。 */
+function toDateString(value: Date | null): string | null {
+  if (value === null) {
+    return null;
+  }
+
+  // Postgres.js は DATE を Date として返すため、時刻部分を除いて日付だけを保持する。
+  return value.toISOString().slice(0, 10);
+}
 
 /** DB 行の固定値を検証し、場面のアプリ用型へ変換する。 */
 function toMoment(row: MomentRow): Moment {
@@ -43,6 +67,107 @@ function toMoment(row: MomentRow): Moment {
     createdAt: row.created_at.toISOString(),
     updatedAt: row.updated_at.toISOString(),
   };
+}
+
+/** JOIN した試合の固定値を検証し、場面表示用の試合概要へ変換する。 */
+function toMomentMatch(row: MomentWithMatchRow): MomentMatch {
+  if (!isTeamCode(row.match_home_team_code)) {
+    throw new Error(`Unknown home team code in match ${row.match_id}: ${row.match_home_team_code}`);
+  }
+
+  if (!isTeamCode(row.match_away_team_code)) {
+    throw new Error(`Unknown away team code in match ${row.match_id}: ${row.match_away_team_code}`);
+  }
+
+  return {
+    id: row.match_id,
+    homeTeamCode: row.match_home_team_code,
+    awayTeamCode: row.match_away_team_code,
+    matchDate: toDateString(row.match_date),
+    homeScore: row.match_home_score,
+    awayScore: row.match_away_score,
+  };
+}
+
+/** 場面と JOIN した試合情報を、一覧・詳細表示用の型へ変換する。 */
+function toMomentWithMatch(row: MomentWithMatchRow): MomentWithMatch {
+  return {
+    ...toMoment(row),
+    match: toMomentMatch(row),
+  };
+}
+
+/** 場面と関連試合を取得する SELECT 句を、再利用可能な SQL 断片として返す。 */
+function selectMomentWithMatchColumns() {
+  return sql`
+    moments.id,
+    moments.match_id,
+    moments.title,
+    moments.moment_type,
+    moments.time_label,
+    moments.subject,
+    moments.description,
+    moments.memory_note,
+    moments.is_favorite,
+    moments.created_at,
+    moments.updated_at,
+    matches.home_team_code AS match_home_team_code,
+    matches.away_team_code AS match_away_team_code,
+    matches.match_date,
+    matches.home_score AS match_home_score,
+    matches.away_score AS match_away_score
+  `;
+}
+
+/** 登録されている場面の総数を取得する。 */
+export async function getMomentCount(): Promise<number> {
+  // PostgreSQL の COUNT は bigint となるため、SQL 内でアプリ用の integer へ変換する。
+  const [row] = await sql<CountRow[]>`
+    SELECT COUNT(*)::integer AS count
+    FROM moments
+  `;
+
+  return row?.count ?? 0;
+}
+
+/** お気に入りとして登録されている場面の総数を取得する。 */
+export async function getFavoriteMomentCount(): Promise<number> {
+  const [row] = await sql<CountRow[]>`
+    SELECT COUNT(*)::integer AS count
+    FROM moments
+    WHERE is_favorite = TRUE
+  `;
+
+  return row?.count ?? 0;
+}
+
+/** 関連試合を含む場面一覧を、試合日の新しい順で取得する。 */
+export async function getMomentList(): Promise<MomentWithMatch[]> {
+  const rows = await sql<MomentWithMatchRow[]>`
+    SELECT
+      ${selectMomentWithMatchColumns()}
+    FROM moments
+    INNER JOIN matches ON matches.id = moments.match_id
+    ORDER BY
+      matches.match_date DESC NULLS LAST,
+      moments.created_at DESC,
+      moments.id DESC
+  `;
+
+  return rows.map(toMomentWithMatch);
+}
+
+/** 指定された ID の場面を、関連試合とともに取得する。 */
+export async function getMomentById(id: number): Promise<MomentWithMatch | null> {
+  const [row] = await sql<MomentWithMatchRow[]>`
+    SELECT
+      ${selectMomentWithMatchColumns()}
+    FROM moments
+    INNER JOIN matches ON matches.id = moments.match_id
+    WHERE moments.id = ${id}
+  `;
+
+  return row ? toMomentWithMatch(row) : null;
 }
 
 /** 指定された試合に関連する場面を、登録日時の新しい順で取得する。 */
@@ -66,4 +191,18 @@ export async function getMomentsByMatchId(matchId: number): Promise<Moment[]> {
   `;
 
   return rows.map(toMoment);
+}
+
+/** ホーム画面用に、最近登録された場面を最大 5 件取得する。 */
+export async function getRecentMoments(): Promise<MomentWithMatch[]> {
+  const rows = await sql<MomentWithMatchRow[]>`
+    SELECT
+      ${selectMomentWithMatchColumns()}
+    FROM moments
+    INNER JOIN matches ON matches.id = moments.match_id
+    ORDER BY moments.created_at DESC, moments.id DESC
+    LIMIT 5
+  `;
+
+  return rows.map(toMomentWithMatch);
 }
