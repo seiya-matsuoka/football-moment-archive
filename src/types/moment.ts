@@ -2,7 +2,7 @@
  * 場面機能の画面、Server Action、Data Access Layer で共有する型を定義する。
  */
 
-import type { MomentType, TeamCode } from '@/lib/constants';
+import type { MomentSort, MomentType, TeamCode } from '@/lib/constants';
 
 /** Data Access Layer で DB 行を camelCase へ変換した後の場面データ。 */
 export type Moment = {
@@ -42,6 +42,26 @@ export type MomentInput = Pick<
   | 'memoryNote'
   | 'isFavorite'
 >;
+
+/** 場面一覧の件数取得と一覧取得で共有する検索・絞り込み条件。 */
+export type MomentListFilters = {
+  /** 4 項目を部分一致で検索するキーワード。未指定の場合は空文字。 */
+  keyword: string;
+  /** 関連試合のホームまたはアウェーに含まれるチーム。 */
+  team: TeamCode | null;
+  /** 絞り込む場面の種類。 */
+  momentType: MomentType | null;
+  /** お気に入りの場面だけを表示するか。 */
+  favoriteOnly: boolean;
+};
+
+/** URL 検索パラメーターから正規化した場面一覧の取得条件。 */
+export type MomentListQuery = MomentListFilters & {
+  /** 許可された 4 種類の並び替え。 */
+  sort: MomentSort;
+  /** 1 から始まる表示ページ番号。 */
+  page: number;
+};
 
 /** 場面一覧と場面詳細で表示する、関連する試合の概要。 */
 export type MomentMatch = {

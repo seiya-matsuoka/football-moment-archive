@@ -2,7 +2,7 @@
  * 試合機能の画面、Server Action、Data Access Layer で共有する型を定義する。
  */
 
-import type { TeamCode } from '@/lib/constants';
+import type { MatchSort, TeamCode } from '@/lib/constants';
 
 /** Data Access Layer で DB 行を camelCase へ変換した後の試合データ。 */
 export type Match = {
@@ -29,6 +29,20 @@ export type MatchInput = Pick<
   Match,
   'homeTeamCode' | 'awayTeamCode' | 'matchDate' | 'homeScore' | 'awayScore'
 >;
+
+/** 試合一覧の件数取得と一覧取得で共有する絞り込み条件。 */
+export type MatchListFilters = {
+  /** ホームまたはアウェーに含まれるチーム。指定なしの場合は `null`。 */
+  team: TeamCode | null;
+};
+
+/** URL 検索パラメーターから正規化した試合一覧の取得条件。 */
+export type MatchListQuery = MatchListFilters & {
+  /** 許可された 4 種類の並び替え。 */
+  sort: MatchSort;
+  /** 1 から始まる表示ページ番号。 */
+  page: number;
+};
 
 /** 一覧画面と詳細画面で使用する、関連する場面数を含んだ試合データ。 */
 export type MatchWithMomentCount = Match & {
