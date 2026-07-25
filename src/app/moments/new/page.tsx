@@ -11,7 +11,7 @@ import { MomentForm } from '@/components/moments/moment-form';
 import { DATA_LIMITS } from '@/lib/constants';
 import { parsePositiveIntegerId } from '@/lib/validation/id';
 import { createMomentFormValues } from '@/lib/validation/moments';
-import { getMatchList } from '@/server/data-access/matches';
+import { getMatchesForSelection } from '@/server/data-access/matches';
 import { getMomentCount } from '@/server/data-access/moments';
 
 import { createMomentAction } from '../actions';
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
 export default async function NewMomentPage({ searchParams }: NewMomentPageProps) {
   const [{ matchId: matchIdParam }, matches, momentCount] = await Promise.all([
     searchParams,
-    getMatchList(),
+    getMatchesForSelection(),
     getMomentCount(),
   ]);
 
