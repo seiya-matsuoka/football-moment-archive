@@ -10,7 +10,7 @@ import { PageHeader } from '@/components/common/page-header';
 import { MomentForm } from '@/components/moments/moment-form';
 import { parsePositiveIntegerId } from '@/lib/validation/id';
 import { createMomentFormValues } from '@/lib/validation/moments';
-import { getMatchList } from '@/server/data-access/matches';
+import { getMatchesForSelection } from '@/server/data-access/matches';
 import { getMomentById } from '@/server/data-access/moments';
 
 import { updateMomentAction } from '../../actions';
@@ -37,7 +37,7 @@ export default async function EditMomentPage({ params }: EditMomentPageProps) {
     notFound();
   }
 
-  const [moment, matches] = await Promise.all([getMomentById(momentId), getMatchList()]);
+  const [moment, matches] = await Promise.all([getMomentById(momentId), getMatchesForSelection()]);
 
   if (moment === null) {
     notFound();
