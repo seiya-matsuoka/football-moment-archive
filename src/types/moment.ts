@@ -1,5 +1,5 @@
 /**
- * 場面機能の画面とコンポーネントで共有する型を定義する。
+ * 場面機能の画面、Server Action、Data Access Layer で共有する型を定義する。
  */
 
 import type { MomentType, TeamCode } from '@/lib/constants';
@@ -29,6 +29,19 @@ export type Moment = {
   /** ISO 形式へ変換した更新日時。 */
   updatedAt: string;
 };
+
+/** 場面の登録・更新 SQL へ渡す、Validation 済みの入力値。 */
+export type MomentInput = Pick<
+  Moment,
+  | 'matchId'
+  | 'title'
+  | 'momentType'
+  | 'timeLabel'
+  | 'subject'
+  | 'description'
+  | 'memoryNote'
+  | 'isFavorite'
+>;
 
 /** 場面一覧と場面詳細で表示する、関連する試合の概要。 */
 export type MomentMatch = {

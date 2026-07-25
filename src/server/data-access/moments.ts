@@ -1,13 +1,13 @@
 import 'server-only';
 
 /**
- * `moments` テーブルを中心とした参照処理を提供する Data Access Layer。
+ * `moments` テーブルを中心とした参照・更新処理を提供する Data Access Layer。
  * SQL、DB 行の型、アプリ用型への変換をこのファイル内へまとめる。
  */
 
 import { isMomentType, isTeamCode } from '@/lib/constants';
 import { sql } from '@/server/db/client';
-import type { Moment, MomentMatch, MomentWithMatch } from '@/types/moment';
+import type { Moment, MomentInput, MomentMatch, MomentWithMatch } from '@/types/moment';
 
 /** `moments` テーブルから取得する DB 行。 */
 type MomentRow = {
@@ -36,6 +36,11 @@ type MomentWithMatchRow = MomentRow & {
 /** `COUNT` の結果を整数として受け取る DB 行。 */
 type CountRow = {
   count: number;
+};
+
+/** 削除した場面の ID を受け取る DB 行。 */
+type DeletedMomentRow = {
+  id: number;
 };
 
 /** PostgreSQL の `DATE` を、アプリで使用する `YYYY-MM-DD` 形式へ変換する。 */
@@ -205,4 +210,116 @@ export async function getRecentMoments(): Promise<MomentWithMatch[]> {
   `;
 
   return rows.map(toMomentWithMatch);
+}
+
+/** Validation 済みの入力値を使用して場面を登録する。 */
+export async function createMoment(input: MomentInput): Promise<Moment> {
+  const [row] = await sql<MomentRow[]>`
+    INSERT INTO moments (
+      match_id,
+      title,
+      moment_type,
+      time_label,
+      subject,
+      description,
+      memory_note,
+      is_favorite
+    )
+    VALUES (
+      ${input.matchId},
+      ${input.title},
+      ${input.momentType},
+      ${input.timeLabel},
+      ${input.subject},
+      ${input.description},
+      ${input.memoryNote},
+      ${input.isFavorite}
+    )
+    RETURNING
+      id,
+      match_id,
+      title,
+      moment_type,
+      time_label,
+      subject,
+      description,
+      memory_note,
+      is_favorite,
+      created_at,
+      updated_at
+  `;
+
+  if (!row) {
+    throw new Error('Failed to create moment.');
+  }
+
+  return toMoment(row);
+}
+
+/** 指定された場面を更新し、対象が存在しない場合は `null` を返す。 */
+export async function updateMomentById(id: number, input: MomentInput): Promise<Moment | null> {
+  const [row] = await sql<MomentRow[]>`
+    UPDATE moments
+    SET
+      match_id = ${input.matchId},
+      title = ${input.title},
+      moment_type = ${input.momentType},
+      time_label = ${input.timeLabel},
+      subject = ${input.subject},
+      description = ${input.description},
+      memory_note = ${input.memoryNote},
+      is_favorite = ${input.isFavorite},
+      updated_at = CURRENT_TIMESTAMP
+    WHERE id = ${id}
+    RETURNING
+      id,
+      match_id,
+      title,
+      moment_type,
+      time_label,
+      subject,
+      description,
+      memory_note,
+      is_favorite,
+      created_at,
+      updated_at
+  `;
+
+  return row ? toMoment(row) : null;
+}
+
+/** 指定された場面を削除し、削除対象が存在したかを返す。 */
+export async function deleteMomentById(id: number): Promise<boolean> {
+  const [row] = await sql<DeletedMomentRow[]>`
+    DELETE FROM moments
+    WHERE id = ${id}
+    RETURNING id
+  `;
+
+  return Boolean(row);
+}
+
+/** 指定された場面のお気に入り状態を DB 上の現在値から反転する。 */
+export async function toggleMomentFavoriteById(id: number): Promise<Moment | null> {
+  const [row] = await sql<MomentRow[]>`
+    UPDATE moments
+    SET
+      is_favorite = NOT is_favorite,
+      updated_at = CURRENT_TIMESTAMP
+    WHERE id = ${id}
+    RETURNING
+      id,
+      match_id,
+      title,
+      moment_type,
+      time_label,
+      subject,
+      description,
+      memory_note,
+      is_favorite,
+      created_at,
+      updated_at
+  `;
+
+  return row ? toMoment(row) : null;
 }

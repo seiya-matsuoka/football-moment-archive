@@ -3,6 +3,7 @@
  */
 
 import { Panel } from '@/components/common/panel';
+import type { MomentFavoriteActionWithId } from '@/types/moment-action';
 import type { MomentWithMatch } from '@/types/moment';
 
 import { MomentMatchSummary } from './moment-match-summary';
@@ -11,14 +12,18 @@ import { MomentSummary } from './moment-summary';
 type MomentListItemProps = {
   /** 一覧項目として表示する場面と関連試合。 */
   moment: MomentWithMatch;
+  /** 場面 ID を束縛する前のお気に入り切り替え Server Action。 */
+  favoriteAction: MomentFavoriteActionWithId;
 };
 
-/** 場面の要約と関連試合を、一つの一覧項目として表示する。 */
-export function MomentListItem({ moment }: MomentListItemProps) {
+/** 場面の要約、関連試合、お気に入り操作を一つの一覧項目として表示する。 */
+export function MomentListItem({ moment, favoriteAction }: MomentListItemProps) {
+  const favoriteActionWithId = favoriteAction.bind(null, moment.id);
+
   return (
     <li>
       <Panel>
-        <MomentSummary moment={moment} headingLevel={2} />
+        <MomentSummary moment={moment} headingLevel={2} favoriteAction={favoriteActionWithId} />
 
         <section
           aria-labelledby={`moment-${moment.id}-match-title`}

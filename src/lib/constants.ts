@@ -66,6 +66,15 @@ export const MOMENT_TYPE_OPTIONS = [
 /** `MOMENT_TYPE_OPTIONS` の保存値から導出した場面の種類。 */
 export type MomentType = (typeof MOMENT_TYPE_OPTIONS)[number]['value'];
 
+/** 場面フォームと Validation で共有する文字数上限。 */
+export const MOMENT_INPUT_LIMITS = {
+  title: 80,
+  timeLabel: 30,
+  subject: 100,
+  description: 1_000,
+  memoryNote: 1_000,
+} as const;
+
 /** 認証のない公開デモで保持できるデータの上限。 */
 export const DATA_LIMITS = {
   matches: 50,

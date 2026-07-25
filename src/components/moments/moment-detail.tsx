@@ -1,18 +1,23 @@
 /**
- * 場面詳細画面で、場面の全情報を表示するコンポーネント。
+ * 場面詳細画面で、場面の全情報とお気に入り操作を表示するコンポーネント。
  */
 
 import { Panel } from '@/components/common/panel';
 import { formatDateTime, getMomentTypeLabel } from '@/lib/format';
+import type { MomentFavoriteAction } from '@/types/moment-action';
 import type { Moment } from '@/types/moment';
+
+import { FavoriteToggleForm } from './favorite-toggle-form';
 
 type MomentDetailProps = {
   /** 詳細表示する場面。 */
   moment: Moment;
+  /** 場面 ID を束縛したお気に入り切り替え Server Action。 */
+  favoriteAction: MomentFavoriteAction;
 };
 
-/** 場面の基本情報、任意の本文、管理情報を表示する。 */
-export function MomentDetail({ moment }: MomentDetailProps) {
+/** 場面の基本情報、任意の本文、管理情報、お気に入り操作を表示する。 */
+export function MomentDetail({ moment, favoriteAction }: MomentDetailProps) {
   return (
     <Panel>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -23,9 +28,7 @@ export function MomentDetail({ moment }: MomentDetailProps) {
           </p>
         </div>
 
-        <p className="text-muted shrink-0 text-sm font-medium">
-          {moment.isFavorite ? 'お気に入り' : 'お気に入り未登録'}
-        </p>
+        <FavoriteToggleForm action={favoriteAction} isFavorite={moment.isFavorite} />
       </div>
 
       {/* 発生時間と対象は、どちらかに値がある場合だけ情報欄を作成する。 */}
