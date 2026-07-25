@@ -1,33 +1,21 @@
 /**
- * 登録済みの試合を一覧として並べるコンポーネント。
+ * 取得済みの試合を一覧として並べるコンポーネント。
  */
 
-import { EmptyState } from '@/components/common/empty-state';
-import { LinkButton } from '@/components/common/link-button';
 import type { MatchWithMomentCount } from '@/types/match';
 
 import { MatchListItem } from './match-list-item';
 
 type MatchListProps = {
-  /** 一覧へ表示する試合。 */
+  /** 現在のページへ表示する試合。 */
   matches: MatchWithMomentCount[];
 };
 
-/** 試合が 0 件の場合の空状態、または試合 1 件ごとの表示を並べる。 */
+/**
+ * 空状態は登録総数と条件一致件数を把握している Page が判断し、
+ * このコンポーネントは取得済みの試合を並べることだけを担当する。
+ */
 export function MatchList({ matches }: MatchListProps) {
-  if (matches.length === 0) {
-    return (
-      <EmptyState
-        message="まだ試合が登録されていません。"
-        actions={
-          <LinkButton href="/matches/new" variant="primary">
-            最初の試合を登録
-          </LinkButton>
-        }
-      />
-    );
-  }
-
   return (
     <ul className="grid gap-4">
       {matches.map((match) => (
