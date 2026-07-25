@@ -5,9 +5,17 @@ import 'server-only';
  * SQL、DB 行の型、アプリ用型への変換をこのファイル内へまとめる。
  */
 
-import { isMomentType, isTeamCode } from '@/lib/constants';
+import { ITEMS_PER_PAGE, isMomentType, isTeamCode, type MomentSort } from '@/lib/constants';
+import { getPaginationOffset } from '@/lib/pagination';
 import { sql } from '@/server/db/client';
-import type { Moment, MomentInput, MomentMatch, MomentWithMatch } from '@/types/moment';
+import type {
+  Moment,
+  MomentInput,
+  MomentListFilters,
+  MomentListQuery,
+  MomentMatch,
+  MomentWithMatch,
+} from '@/types/moment';
 
 /** `moments` テーブルから取得する DB 行。 */
 type MomentRow = {
@@ -124,6 +132,88 @@ function selectMomentWithMatchColumns() {
   `;
 }
 
+/** `%`、`_`、`\` をワイルドカードではなく通常の文字として検索する。 */
+function toContainsPattern(keyword: string): string {
+  const escapedKeyword = keyword.replace(/[\\%_]/g, '\\$&');
+
+  return `%${escapedKeyword}%`;
+}
+
+/** 場面一覧の検索・絞り込み条件を、パラメーター化された SQL 断片へ変換する。 */
+function momentListFilter(filters: MomentListFilters) {
+  const keywordPattern = filters.keyword === '' ? null : toContainsPattern(filters.keyword);
+
+  return sql`
+    WHERE TRUE
+      ${
+        keywordPattern === null
+          ? sql``
+          : sql`
+              AND (
+                moments.title ILIKE ${keywordPattern}
+                OR moments.subject ILIKE ${keywordPattern}
+                OR moments.description ILIKE ${keywordPattern}
+                OR moments.memory_note ILIKE ${keywordPattern}
+              )
+            `
+      }
+      ${
+        filters.team === null
+          ? sql``
+          : sql`
+              AND (
+                matches.home_team_code = ${filters.team}
+                OR matches.away_team_code = ${filters.team}
+              )
+            `
+      }
+      ${
+        filters.momentType === null
+          ? sql``
+          : sql`
+              AND moments.moment_type = ${filters.momentType}
+            `
+      }
+      ${
+        filters.favoriteOnly
+          ? sql`
+              AND moments.is_favorite = TRUE
+            `
+          : sql``
+      }
+  `;
+}
+
+/**
+ * URL から直接 SQL を組み立てず、型で許可された並び替えだけを固定 SQL 断片へ変換する。
+ */
+function momentOrderBy(sort: MomentSort) {
+  switch (sort) {
+    case 'match-date-desc':
+      return sql`
+        matches.match_date DESC NULLS LAST,
+        moments.created_at DESC,
+        moments.id DESC
+      `;
+    case 'match-date-asc':
+      return sql`
+        matches.match_date ASC NULLS LAST,
+        moments.created_at ASC,
+        moments.id ASC
+      `;
+    case 'created-at-desc':
+      return sql`
+        moments.created_at DESC,
+        moments.id DESC
+      `;
+    case 'created-at-asc':
+      return sql`
+        moments.created_at ASC,
+        moments.id ASC
+      `;
+  }
+}
+
 /** 登録されている場面の総数を取得する。 */
 export async function getMomentCount(): Promise<number> {
   // PostgreSQL の COUNT は bigint となるため、SQL 内でアプリ用の integer へ変換する。
@@ -146,17 +236,34 @@ export async function getFavoriteMomentCount(): Promise<number> {
   return row?.count ?? 0;
 }
 
-/** 関連試合を含む場面一覧を、試合日の新しい順で取得する。 */
-export async function getMomentList(): Promise<MomentWithMatch[]> {
+/** 現在の検索・絞り込み条件に一致する場面数を取得する。 */
+export async function getMomentListCount(filters: MomentListFilters): Promise<number> {
+  const [row] = await sql<CountRow[]>`
+    SELECT COUNT(*)::integer AS count
+    FROM moments
+    INNER JOIN matches ON matches.id = moments.match_id
+    ${momentListFilter(filters)}
+  `;
+
+  return row?.count ?? 0;
+}
+
+/**
+ * 関連試合を含む場面一覧へ、検索、絞り込み、並び替え、`LIMIT`、`OFFSET` を適用する。
+ */
+export async function getMomentList(query: MomentListQuery): Promise<MomentWithMatch[]> {
+  const offset = getPaginationOffset(query.page, ITEMS_PER_PAGE);
+
   const rows = await sql<MomentWithMatchRow[]>`
     SELECT
       ${selectMomentWithMatchColumns()}
     FROM moments
     INNER JOIN matches ON matches.id = moments.match_id
+    ${momentListFilter(query)}
     ORDER BY
-      matches.match_date DESC NULLS LAST,
-      moments.created_at DESC,
-      moments.id DESC
+      ${momentOrderBy(query.sort)}
+    LIMIT ${ITEMS_PER_PAGE}
+    OFFSET ${offset}
   `;
 
   return rows.map(toMomentWithMatch);

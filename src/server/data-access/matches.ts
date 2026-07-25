@@ -5,9 +5,16 @@ import 'server-only';
  * SQL、DB 行の型、アプリ用型への変換をこのファイル内へまとめる。
  */
 
-import { isTeamCode } from '@/lib/constants';
+import { ITEMS_PER_PAGE, isTeamCode, type MatchSort, type TeamCode } from '@/lib/constants';
+import { getPaginationOffset } from '@/lib/pagination';
 import { sql } from '@/server/db/client';
-import type { Match, MatchInput, MatchWithMomentCount } from '@/types/match';
+import type {
+  Match,
+  MatchInput,
+  MatchListFilters,
+  MatchListQuery,
+  MatchWithMomentCount,
+} from '@/types/match';
 
 /** `matches` テーブルから取得する DB 行。 */
 type MatchRow = {
@@ -76,6 +83,48 @@ function toMatchWithMomentCount(row: MatchWithMomentCountRow): MatchWithMomentCo
   };
 }
 
+/** 選択されたチームがホームまたはアウェーに含まれる条件を返す。 */
+function matchTeamFilter(team: TeamCode | null) {
+  return team === null
+    ? sql``
+    : sql`
+        AND (
+          matches.home_team_code = ${team}
+          OR matches.away_team_code = ${team}
+        )
+      `;
+}
+
+/**
+ * URL から直接 SQL を組み立てず、型で許可された並び替えだけを固定 SQL 断片へ変換する。
+ */
+function matchOrderBy(sort: MatchSort) {
+  switch (sort) {
+    case 'match-date-desc':
+      return sql`
+        matches.match_date DESC NULLS LAST,
+        matches.created_at DESC,
+        matches.id DESC
+      `;
+    case 'match-date-asc':
+      return sql`
+        matches.match_date ASC NULLS LAST,
+        matches.created_at ASC,
+        matches.id ASC
+      `;
+    case 'created-at-desc':
+      return sql`
+        matches.created_at DESC,
+        matches.id DESC
+      `;
+    case 'created-at-asc':
+      return sql`
+        matches.created_at ASC,
+        matches.id ASC
+      `;
+  }
+}
+
 /** 登録されている試合の総数を取得する。 */
 export async function getMatchCount(): Promise<number> {
   // PostgreSQL の COUNT は bigint となるため、SQL 内でアプリ用の integer へ変換する。
@@ -87,8 +136,24 @@ export async function getMatchCount(): Promise<number> {
   return row?.count ?? 0;
 }
 
-/** 場面数を含む試合一覧を、試合日の新しい順で取得する。 */
-export async function getMatchList(): Promise<MatchWithMomentCount[]> {
+/** 現在のチーム絞り込みに一致する試合数を取得する。 */
+export async function getMatchListCount(filters: MatchListFilters): Promise<number> {
+  const [row] = await sql<CountRow[]>`
+    SELECT COUNT(*)::integer AS count
+    FROM matches
+    WHERE TRUE
+      ${matchTeamFilter(filters.team)}
+  `;
+
+  return row?.count ?? 0;
+}
+
+/**
+ * 場面数を含む試合一覧へ、絞り込み、並び替え、`LIMIT`、`OFFSET` を適用して取得する。
+ */
+export async function getMatchList(query: MatchListQuery): Promise<MatchWithMomentCount[]> {
+  const offset = getPaginationOffset(query.page, ITEMS_PER_PAGE);
+
   const rows = await sql<MatchWithMomentCountRow[]>`
     SELECT
       matches.id,
@@ -102,14 +167,41 @@ export async function getMatchList(): Promise<MatchWithMomentCount[]> {
       COUNT(moments.id)::integer AS moment_count
     FROM matches
     LEFT JOIN moments ON moments.match_id = matches.id
+    WHERE TRUE
+      ${matchTeamFilter(query.team)}
     GROUP BY matches.id
     ORDER BY
-      matches.match_date DESC NULLS LAST,
-      matches.created_at DESC,
-      matches.id DESC
+      ${matchOrderBy(query.sort)}
+    LIMIT ${ITEMS_PER_PAGE}
+    OFFSET ${offset}
   `;
 
   return rows.map(toMatchWithMomentCount);
+}
+
+/**
+ * 場面登録・編集フォームの選択肢として、登録済みの全試合を取得する。
+ * 一覧画面用のページネーションをフォームへ持ち込まず、全試合を選択可能にする。
+ */
+export async function getMatchesForSelection(): Promise<Match[]> {
+  const rows = await sql<MatchRow[]>`
+    SELECT
+      id,
+      home_team_code,
+      away_team_code,
+      match_date,
+      home_score,
+      away_score,
+      created_at,
+      updated_at
+    FROM matches
+    ORDER BY
+      match_date DESC NULLS LAST,
+      created_at DESC,
+      id DESC
+  `;
+
+  return rows.map(toMatch);
 }
 
 /** 指定された ID の試合を、関連する場面数とともに取得する。 */
