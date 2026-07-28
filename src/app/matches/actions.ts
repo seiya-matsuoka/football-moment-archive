@@ -93,6 +93,8 @@ export async function createMatchAction(
 
   revalidatePath('/');
   revalidatePath('/matches');
+  // 最初の試合登録後は、場面一覧の登録導線も最新状態へ更新する。
+  revalidatePath('/moments');
   redirect(`/matches/${createdMatch.id}`);
 }
 
@@ -147,9 +149,12 @@ export async function updateMatchAction(
     );
   }
 
+  // ホームの最近の場面と、場面画面に表示する関連試合情報も更新対象となる。
+  revalidatePath('/');
   revalidatePath('/matches');
   revalidatePath(`/matches/${matchId}`);
   revalidatePath('/moments');
+  revalidatePath('/moments/[id]', 'page');
   redirect(`/matches/${matchId}`);
 }
 

@@ -8,21 +8,28 @@ import type { MomentWithMatch } from '@/types/moment';
 import { MomentListItem } from './moment-list-item';
 
 type MomentListProps = {
-  /** 現在のページへ表示する場面と関連試合。 */
+  /** 一覧として表示する場面と関連試合。 */
   moments: MomentWithMatch[];
-  /** 一覧の各場面で使用するお気に入り切り替え Server Action。 */
-  favoriteAction: MomentFavoriteActionWithId;
+  /** 各場面でお気に入りを切り替えられる場合に渡す Server Action。 */
+  favoriteAction?: MomentFavoriteActionWithId;
+  /** 親画面の見出し構造に合わせた、各場面タイトルの見出しレベル。 */
+  itemHeadingLevel?: 2 | 3;
 };
 
 /**
- * 空状態は登録総数と条件一致件数を把握している Page が判断し、
+ * 空状態は登録総数や条件一致件数を把握している Page が判断し、
  * このコンポーネントは取得済みの場面を並べることだけを担当する。
  */
-export function MomentList({ moments, favoriteAction }: MomentListProps) {
+export function MomentList({ moments, favoriteAction, itemHeadingLevel = 2 }: MomentListProps) {
   return (
     <ul className="grid gap-4">
       {moments.map((moment) => (
-        <MomentListItem key={moment.id} moment={moment} favoriteAction={favoriteAction} />
+        <MomentListItem
+          key={moment.id}
+          moment={moment}
+          favoriteAction={favoriteAction}
+          headingLevel={itemHeadingLevel}
+        />
       ))}
     </ul>
   );
