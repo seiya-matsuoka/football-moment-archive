@@ -27,10 +27,25 @@ type MatchDetailPageProps = {
 /** DB の最新状態をリクエストごとに取得し、Build 時の DB 接続を避ける。 */
 export const dynamic = 'force-dynamic';
 
-/** ブラウザのタイトルへ試合詳細であることを表示する。 */
-export const metadata: Metadata = {
-  title: '試合詳細',
-};
+/** 対象試合の対戦カードを使用して動的なページタイトルを生成する。 */
+export async function generateMetadata({ params }: MatchDetailPageProps): Promise<Metadata> {
+  const { id: idParam } = await params;
+  const matchId = parsePositiveIntegerId(idParam);
+
+  if (matchId === null) {
+    notFound();
+  }
+
+  const match = await getMatchById(matchId);
+
+  if (match === null) {
+    notFound();
+  }
+
+  return {
+    title: formatFixture(match.homeTeamCode, match.awayTeamCode),
+  };
+}
 
 /** 試合情報と関連する場面を取得し、存在しない場合は試合用の 404 を表示する。 */
 export default async function MatchDetailPage({ params }: MatchDetailPageProps) {

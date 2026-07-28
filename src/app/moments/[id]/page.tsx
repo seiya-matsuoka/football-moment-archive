@@ -24,9 +24,25 @@ type MomentDetailPageProps = {
 /** DB の最新状態をリクエストごとに取得し、Build 時の DB 接続を避ける。 */
 export const dynamic = 'force-dynamic';
 
-export const metadata: Metadata = {
-  title: '場面詳細',
-};
+/** 対象場面のタイトルを使用して動的なページタイトルを生成する。 */
+export async function generateMetadata({ params }: MomentDetailPageProps): Promise<Metadata> {
+  const { id: idParam } = await params;
+  const momentId = parsePositiveIntegerId(idParam);
+
+  if (momentId === null) {
+    notFound();
+  }
+
+  const moment = await getMomentById(momentId);
+
+  if (moment === null) {
+    notFound();
+  }
+
+  return {
+    title: moment.title,
+  };
+}
 
 /** 場面と関連試合を取得し、更新・削除・お気に入り操作とともに表示する。 */
 export default async function MomentDetailPage({ params }: MomentDetailPageProps) {
