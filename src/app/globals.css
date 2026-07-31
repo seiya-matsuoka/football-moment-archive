@@ -5,24 +5,25 @@
  */
 :root {
   /* 色 */
-  --app-color-background: #f8fafc;
-  --app-color-surface: #ffffff;
-  --app-color-surface-muted: #f1f5f9;
-  --app-color-text: #0f172a;
-  --app-color-muted: #64748b;
-  --app-color-border: #cbd5e1;
-  --app-color-border-strong: #94a3b8;
-  --app-color-accent: #334155;
-  --app-color-accent-foreground: #ffffff;
-  --app-color-focus: #475569;
-  --app-color-notice-background: #fffbeb;
-  --app-color-notice-border: #fde68a;
-  --app-color-notice-text: #78350f;
-  --app-color-danger: #b91c1c;
+  --app-color-background: #3730a3;
+  --app-color-surface: #5145d8;
+  --app-color-surface-muted: #28236f;
+  --app-color-text: #fcfbff;
+  --app-color-muted: #e8e5ff;
+  --app-color-border: #c8c9ff;
+  --app-color-border-strong: #e1e1ff;
+  --app-color-accent: #d3c8ff;
+  --app-color-accent-foreground: #211147;
+  --app-color-focus: #cbefff;
+  --app-color-notice-background: #2f297f;
+  --app-color-notice-border: #b9bbff;
+  --app-color-notice-text: #faf9ff;
+  --app-color-favorite: #ffd166;
+  --app-color-danger: #d84f70;
   --app-color-danger-foreground: #ffffff;
-  --app-color-error: #991b1b;
-  --app-color-error-background: #fef2f2;
-  --app-color-error-border: #fecaca;
+  --app-color-error: #ffe0e8;
+  --app-color-error-background: #57254f;
+  --app-color-error-border: #ffa3ba;
 
   /* 角丸 */
   --app-radius-control: 0.375rem;
@@ -56,6 +57,7 @@
   --color-notice-background: var(--app-color-notice-background);
   --color-notice-border: var(--app-color-notice-border);
   --color-notice-text: var(--app-color-notice-text);
+  --color-favorite: var(--app-color-favorite);
   --color-danger: var(--app-color-danger);
   --color-danger-foreground: var(--app-color-danger-foreground);
   --color-error: var(--app-color-error);
@@ -85,7 +87,7 @@
 html {
   min-width: 320px;
   background: var(--app-color-background);
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 /*
@@ -111,6 +113,12 @@ input,
 select,
 textarea {
   font: inherit;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--app-color-muted);
+  opacity: 1;
 }
 
 button,
