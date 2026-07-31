@@ -26,7 +26,7 @@ export function FavoriteToggleForm({ action, isFavorite }: FavoriteToggleFormPro
 
   return (
     <div className="flex flex-col items-start gap-2 sm:items-end">
-      <p className="text-muted text-sm font-medium">
+      <p className={`${isFavorite ? 'text-favorite' : 'text-muted'} text-sm font-medium`}>
         {isFavorite ? 'お気に入り' : 'お気に入り未登録'}
       </p>
 

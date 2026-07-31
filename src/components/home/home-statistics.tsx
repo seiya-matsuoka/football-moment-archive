@@ -85,7 +85,7 @@ export function HomeStatistics({
 
         <Panel>
           <p className="text-muted text-sm font-medium">お気に入り場面数</p>
-          <p className="text-text mt-2 text-3xl font-bold">{favoriteMomentCount} 件</p>
+          <p className="text-favorite mt-2 text-3xl font-bold">{favoriteMomentCount} 件</p>
 
           <div className="mt-5">
             <LinkButton href="/moments?favorite=true">お気に入りを見る</LinkButton>

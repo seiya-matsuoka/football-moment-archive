@@ -42,7 +42,9 @@ export function MomentSummary({ moment, headingLevel, favoriteAction }: MomentSu
         {favoriteAction ? (
           <FavoriteToggleForm action={favoriteAction} isFavorite={moment.isFavorite} />
         ) : (
-          <p className="text-muted shrink-0 text-sm font-medium">
+          <p
+            className={`${moment.isFavorite ? 'text-favorite' : 'text-muted'} shrink-0 text-sm font-medium`}
+          >
             {moment.isFavorite ? 'お気に入り' : 'お気に入り未登録'}
           </p>
         )}
