@@ -4,33 +4,45 @@
  * アプリ全体で使用するデザイン上の実値。
  */
 :root {
-  /* 色 */
-  --app-color-background: #3730a3;
-  --app-color-surface: #5145d8;
-  --app-color-surface-muted: #28236f;
-  --app-color-text: #fcfbff;
-  --app-color-muted: #e8e5ff;
-  --app-color-border: #c8c9ff;
-  --app-color-border-strong: #e1e1ff;
-  --app-color-accent: #d3c8ff;
-  --app-color-accent-foreground: #211147;
-  --app-color-focus: #cbefff;
-  --app-color-notice-background: #2f297f;
-  --app-color-notice-border: #b9bbff;
-  --app-color-notice-text: #faf9ff;
-  --app-color-favorite: #ffd166;
-  --app-color-danger: #d84f70;
+  --app-color-background: #070b14;
+  --app-color-surface: #0f1b2d;
+  --app-color-surface-raised: #10233a;
+  --app-color-surface-muted: #0b1625;
+
+  --app-color-text: #f5f7fb;
+  --app-color-muted: #b8c7d9;
+  --app-color-subtle: #8fa3b8;
+  --app-color-border: #2b4968;
+  --app-color-border-strong: #426b93;
+
+  --app-color-brand: #10233a;
+  --app-color-brand-strong: #050812;
+  --app-color-brand-soft: #c4e2ff;
+  --app-color-border-on-brand: #284766;
+  --app-color-text-on-brand: #f5f7fb;
+  --app-color-muted-on-brand: #b8c7d9;
+
+  --app-color-accent: #4da3ff;
+  --app-color-accent-foreground: #061321;
+  --app-color-accent-soft: #173a5e;
+  --app-color-focus: #7bc4ff;
+  --app-color-focus-on-brand: #7bc4ff;
+  --app-color-notice-background: #0b1625;
+  --app-color-notice-border: #2b4968;
+  --app-color-notice-text: #f5f7fb;
+  --app-color-favorite: #f6c453;
+  --app-color-danger: #c93f52;
   --app-color-danger-foreground: #ffffff;
-  --app-color-error: #ffe0e8;
-  --app-color-error-background: #57254f;
-  --app-color-error-border: #ffa3ba;
+  --app-color-error: #ffbac3;
+  --app-color-error-background: #37131a;
+  --app-color-error-border: #8e3443;
 
   /* 角丸 */
   --app-radius-control: 0.375rem;
   --app-radius-panel: 0.5rem;
 
   /* 影 */
-  --app-shadow-panel: 0 1px 2px rgb(15 23 42 / 0.08);
+  --app-shadow-panel: 0 1px 2px rgb(0 0 0 / 0.35);
 
   /* 基準余白 */
   --app-spacing-page: 1rem;
@@ -46,14 +58,27 @@
   /* 色 */
   --color-background: var(--app-color-background);
   --color-surface: var(--app-color-surface);
+  --color-surface-raised: var(--app-color-surface-raised);
   --color-surface-muted: var(--app-color-surface-muted);
+
   --color-text: var(--app-color-text);
   --color-muted: var(--app-color-muted);
+  --color-subtle: var(--app-color-subtle);
   --color-border: var(--app-color-border);
   --color-border-strong: var(--app-color-border-strong);
+
+  --color-brand: var(--app-color-brand);
+  --color-brand-strong: var(--app-color-brand-strong);
+  --color-brand-soft: var(--app-color-brand-soft);
+  --color-border-on-brand: var(--app-color-border-on-brand);
+  --color-text-on-brand: var(--app-color-text-on-brand);
+  --color-muted-on-brand: var(--app-color-muted-on-brand);
+
   --color-accent: var(--app-color-accent);
   --color-accent-foreground: var(--app-color-accent-foreground);
+  --color-accent-soft: var(--app-color-accent-soft);
   --color-focus: var(--app-color-focus);
+  --color-focus-on-brand: var(--app-color-focus-on-brand);
   --color-notice-background: var(--app-color-notice-background);
   --color-notice-border: var(--app-color-notice-border);
   --color-notice-text: var(--app-color-notice-text);
