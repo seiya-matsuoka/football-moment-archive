@@ -2,14 +2,9 @@
  * 試合詳細画面の基本情報を表示するコンポーネント。
  */
 
-import { Panel } from '@/components/common/panel';
-import {
-  formatDateTime,
-  formatFixture,
-  formatMatchDate,
-  formatScore,
-  getTeamName,
-} from '@/lib/format';
+import { MatchScoreboard } from '@/components/common/match-scoreboard';
+import { SectionHeader } from '@/components/common/section-header';
+import { formatDateTime, formatMatchDate } from '@/lib/format';
 import type { MatchWithMomentCount } from '@/types/match';
 
 type MatchDetailProps = {
@@ -17,64 +12,39 @@ type MatchDetailProps = {
   match: MatchWithMomentCount;
 };
 
-/** 対戦チーム、スコア、試合日、場面数、管理情報をまとめて表示する。 */
+/** 共通 Scoreboard と試合日・場面数・登録日時を一つの Card にまとめて表示する。 */
 export function MatchDetail({ match }: MatchDetailProps) {
   return (
-    <Panel>
-      {/* ホーム、スコア、アウェーを対になる配置で表示する。 */}
-      <div className="grid gap-5 text-center sm:grid-cols-[1fr_auto_1fr] sm:items-center">
-        <div>
-          <p className="text-muted text-sm font-medium">ホーム</p>
-          <p className="text-text mt-1 text-xl font-semibold">{getTeamName(match.homeTeamCode)}</p>
-        </div>
+    <article className="border-border bg-surface rounded-panel shadow-panel border p-5 sm:p-7">
+      <SectionHeader eyebrow="Match Detail" title="試合詳細" />
 
-        <div>
-          <p className="text-muted text-sm font-medium">スコア</p>
-          <p className="text-text mt-1 text-2xl font-bold">
-            {formatScore(match.homeScore, match.awayScore)}
-          </p>
-        </div>
-
-        <div>
-          <p className="text-muted text-sm font-medium">アウェー</p>
-          <p className="text-text mt-1 text-xl font-semibold">{getTeamName(match.awayTeamCode)}</p>
-        </div>
+      <div className="border-border/55 mt-5 border-t pt-5 sm:pt-6">
+        <MatchScoreboard
+          homeTeamCode={match.homeTeamCode}
+          awayTeamCode={match.awayTeamCode}
+          homeScore={match.homeScore}
+          awayScore={match.awayScore}
+        />
       </div>
 
-      {/* 対戦情報と管理情報は、主表示より優先度を下げて一覧化する。 */}
-      <dl className="mt-section border-border pt-section grid gap-4 border-t sm:grid-cols-2 lg:grid-cols-3">
+      <dl className="border-border/55 mt-6 grid gap-4 border-t pt-5 text-sm sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
         <div>
-          <dt className="text-muted text-sm font-medium">対戦カード</dt>
-          <dd className="text-text mt-1 text-sm">
-            {formatFixture(match.homeTeamCode, match.awayTeamCode)}
-          </dd>
+          <dt className="text-muted text-xs font-medium">試合日</dt>
+          <dd className="text-text mt-1.5 wrap-break-word">{formatMatchDate(match.matchDate)}</dd>
         </div>
-
         <div>
-          <dt className="text-muted text-sm font-medium">試合日</dt>
-          <dd className="text-text mt-1 text-sm">{formatMatchDate(match.matchDate)}</dd>
+          <dt className="text-muted text-xs font-medium">関連する場面</dt>
+          <dd className="text-text mt-1.5">{match.momentCount} 件</dd>
         </div>
-
         <div>
-          <dt className="text-muted text-sm font-medium">場面数</dt>
-          <dd className="text-text mt-1 text-sm">{match.momentCount} 件</dd>
+          <dt className="text-muted text-xs font-medium">登録日時</dt>
+          <dd className="text-text mt-1.5 wrap-break-word">{formatDateTime(match.createdAt)}</dd>
         </div>
-
         <div>
-          <dt className="text-muted text-sm font-medium">試合 ID</dt>
-          <dd className="text-text mt-1 text-sm">{match.id}</dd>
-        </div>
-
-        <div>
-          <dt className="text-muted text-sm font-medium">登録日時</dt>
-          <dd className="text-text mt-1 text-sm">{formatDateTime(match.createdAt)}</dd>
-        </div>
-
-        <div>
-          <dt className="text-muted text-sm font-medium">更新日時</dt>
-          <dd className="text-text mt-1 text-sm">{formatDateTime(match.updatedAt)}</dd>
+          <dt className="text-muted text-xs font-medium">更新日時</dt>
+          <dd className="text-text mt-1.5 wrap-break-word">{formatDateTime(match.updatedAt)}</dd>
         </div>
       </dl>
-    </Panel>
+    </article>
   );
 }

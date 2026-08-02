@@ -8,11 +8,12 @@ import { notFound } from 'next/navigation';
 import { Button } from '@/components/common/button';
 import { LinkButton } from '@/components/common/link-button';
 import { PageHeader } from '@/components/common/page-header';
+import { SectionHeader } from '@/components/common/section-header';
 import { MatchDeleteForm } from '@/components/matches/match-delete-form';
 import { MatchDetail } from '@/components/matches/match-detail';
 import { MatchMomentList } from '@/components/matches/match-moment-list';
 import { DATA_LIMITS } from '@/lib/constants';
-import { formatFixture } from '@/lib/format';
+import { formatFixture, formatMatchDate } from '@/lib/format';
 import { parsePositiveIntegerId } from '@/lib/validation/id';
 import { getMatchById } from '@/server/data-access/matches';
 import { getMomentCount, getMomentsByMatchId } from '@/server/data-access/moments';
@@ -29,38 +30,19 @@ export const dynamic = 'force-dynamic';
 
 /** 対象試合の対戦カードを使用して動的なページタイトルを生成する。 */
 export async function generateMetadata({ params }: MatchDetailPageProps): Promise<Metadata> {
-  const { id: idParam } = await params;
-  const matchId = parsePositiveIntegerId(idParam);
-
-  if (matchId === null) {
-    notFound();
-  }
-
+  const matchId = parsePositiveIntegerId((await params).id);
+  if (matchId === null) notFound();
   const match = await getMatchById(matchId);
-
-  if (match === null) {
-    notFound();
-  }
-
-  return {
-    title: formatFixture(match.homeTeamCode, match.awayTeamCode),
-  };
+  if (match === null) notFound();
+  return { title: formatFixture(match.homeTeamCode, match.awayTeamCode) };
 }
 
 /** 試合情報と関連する場面を取得し、存在しない場合は試合用の 404 を表示する。 */
 export default async function MatchDetailPage({ params }: MatchDetailPageProps) {
-  const { id: idParam } = await params;
-  const matchId = parsePositiveIntegerId(idParam);
-
-  if (matchId === null) {
-    notFound();
-  }
-
+  const matchId = parsePositiveIntegerId((await params).id);
+  if (matchId === null) notFound();
   const match = await getMatchById(matchId);
-
-  if (match === null) {
-    notFound();
-  }
+  if (match === null) notFound();
 
   // 試合の存在を確認してから、関連場面と全体の登録上限を並列で取得する。
   const [moments, momentCount] = await Promise.all([
@@ -72,49 +54,61 @@ export default async function MatchDetailPage({ params }: MatchDetailPageProps) 
   const hasReachedMomentLimit = momentCount >= DATA_LIMITS.moments;
 
   return (
-    <div className="space-y-section">
+    <div className="space-y-6 sm:space-y-8">
       <PageHeader
+        eyebrow="Match"
         title={fixture}
-        description="試合情報と、この試合に関連する場面を表示します。"
+        metadata={
+          <dl className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+            <div className="flex items-baseline gap-1.5">
+              <dt className="text-muted">試合日</dt>
+              <dd className="text-text font-medium tabular-nums">
+                {formatMatchDate(match.matchDate)}
+              </dd>
+            </div>
+            <div className="border-border/50 flex items-baseline gap-1.5 sm:border-l sm:pl-4">
+              <dt className="text-muted">関連する場面</dt>
+              <dd className="text-text font-medium tabular-nums">{moments.length} 件</dd>
+            </div>
+          </dl>
+        }
+        backLink={{ href: '/matches', label: '試合一覧へ戻る' }}
         actions={
-          <>
-            <LinkButton href="/matches">試合一覧へ戻る</LinkButton>
-            <LinkButton href={`/matches/${match.id}/edit`} variant="primary">
-              試合を編集
-            </LinkButton>
-          </>
+          <LinkButton href={`/matches/${match.id}/edit`} variant="primary">
+            試合を編集
+          </LinkButton>
         }
       />
 
       <MatchDetail match={match} />
 
       <section aria-labelledby="related-moments-title">
-        <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h2 id="related-moments-title" className="text-text text-xl font-semibold">
-              関連する場面
-            </h2>
-            <p className="text-muted mt-1 text-sm">登録日時の新しい順に表示しています。</p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3 sm:justify-end">
-            <p className="text-muted shrink-0 text-sm font-medium">{moments.length} 件</p>
-            {hasReachedMomentLimit ? (
-              <div className="max-w-xs text-right">
+        <SectionHeader
+          eyebrow="Moments"
+          title="関連する場面"
+          titleId="related-moments-title"
+          description="登録日時の新しい順に表示しています。"
+          aside={
+            <div className="flex flex-wrap items-center justify-end gap-3">
+              <p className="text-muted text-sm font-medium">{moments.length} 件</p>
+              {hasReachedMomentLimit ? (
                 <Button disabled>場面を登録</Button>
-                <p className="text-muted mt-2 text-sm leading-5">
-                  最大 {DATA_LIMITS.moments} 件に到達しています。
-                </p>
-              </div>
-            ) : (
-              <LinkButton href={`/moments/new?matchId=${match.id}`} variant="primary">
-                この試合に場面を登録
-              </LinkButton>
-            )}
-          </div>
+              ) : (
+                <LinkButton href={`/moments/new?matchId=${match.id}`} variant="primary">
+                  この試合に場面を登録
+                </LinkButton>
+              )}
+            </div>
+          }
+        />
+        <div className="mt-4">
+          <MatchMomentList moments={moments} />
         </div>
-
-        <MatchMomentList moments={moments} />
+        {hasReachedMomentLimit ? (
+          <p className="text-muted mt-3 text-right text-xs leading-5">
+            最大 {DATA_LIMITS.moments} 件に到達しています。
+          </p>
+        ) : null}
       </section>
 
       <MatchDeleteForm action={deleteActionWithId} momentCount={match.momentCount} />
