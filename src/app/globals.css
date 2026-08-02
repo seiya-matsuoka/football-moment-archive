@@ -4,17 +4,34 @@
  * アプリ全体で使用するデザイン上の実値。
  */
 :root {
+  /*
+   * 黒に近い Midnight Blue を画面全体の Canvas とし、
+   * 青みが分かる Deep Blue をコンテンツ Surface に使用する。
+   */
   --app-color-background: #070b14;
   --app-color-surface: #0f1b2d;
   --app-color-surface-raised: #10233a;
   --app-color-surface-muted: #0b1625;
 
+  /*
+   * 暗い Canvas と Surface の両方で使用する文字色。
+   * 通常文字、補助文字、優先度の低い文字を明度差で区別する。
+   */
   --app-color-text: #f5f7fb;
   --app-color-muted: #b8c7d9;
   --app-color-subtle: #8fa3b8;
+
+  /*
+   * 通常の区切りには抑えた Blue、操作要素や重要な境界には
+   * それより明るい Blue を使用する。
+   */
   --app-color-border: #2b4968;
   --app-color-border-strong: #426b93;
 
+  /*
+   * Header と Navigation で使用する Brand 領域。
+   * Header は Canvas よりわずかに暗くし、現在地には明るい Ice Blue を使用する。
+   */
   --app-color-brand: #10233a;
   --app-color-brand-strong: #050812;
   --app-color-brand-soft: #c4e2ff;
@@ -22,15 +39,28 @@
   --app-color-text-on-brand: #f5f7fb;
   --app-color-muted-on-brand: #b8c7d9;
 
+  /*
+   * Clear Blue を主要操作、深い Blue を補助的な選択状態、
+   * 明るい Sky Blue を Keyboard Focus に使用する。
+   */
   --app-color-accent: #4da3ff;
   --app-color-accent-foreground: #061321;
   --app-color-accent-soft: #173a5e;
   --app-color-focus: #7bc4ff;
   --app-color-focus-on-brand: #7bc4ff;
+
+  /* 公開デモ案内は通常コンテンツより少し暗い Blue Surface とする。 */
   --app-color-notice-background: #0b1625;
   --app-color-notice-border: #2b4968;
   --app-color-notice-text: #f5f7fb;
+
+  /* お気に入りはダークブルー上で判別しやすい Warm Amber を使用する。 */
   --app-color-favorite: #f6c453;
+
+  /*
+   * 削除とエラーは Blue 系の UI から判別できる Coral / Rose 系を使用する。
+   * Danger 背景上の白文字についても十分な明度差を確保する。
+   */
   --app-color-danger: #c93f52;
   --app-color-danger-foreground: #ffffff;
   --app-color-error: #ffbac3;
@@ -52,21 +82,23 @@
 
 /*
  * CSS 変数をセマンティックな Tailwind CSS ユーティリティへ接続する。
- * TSX 側では具体的な色名や数値ではなく、用途を表すクラス名を使用する。
+ * TSX 側では具体的な色名ではなく、用途を表すクラス名を使用する。
  */
 @theme inline {
-  /* 色 */
+  /* Canvas とコンテンツ Surface */
   --color-background: var(--app-color-background);
   --color-surface: var(--app-color-surface);
   --color-surface-raised: var(--app-color-surface-raised);
   --color-surface-muted: var(--app-color-surface-muted);
 
+  /* 文字と区切り */
   --color-text: var(--app-color-text);
   --color-muted: var(--app-color-muted);
   --color-subtle: var(--app-color-subtle);
   --color-border: var(--app-color-border);
   --color-border-strong: var(--app-color-border-strong);
 
+  /* Header と Navigation の Brand 領域 */
   --color-brand: var(--app-color-brand);
   --color-brand-strong: var(--app-color-brand-strong);
   --color-brand-soft: var(--app-color-brand-soft);
@@ -74,6 +106,7 @@
   --color-text-on-brand: var(--app-color-text-on-brand);
   --color-muted-on-brand: var(--app-color-muted-on-brand);
 
+  /* 操作・状態 */
   --color-accent: var(--app-color-accent);
   --color-accent-foreground: var(--app-color-accent-foreground);
   --color-accent-soft: var(--app-color-accent-soft);
