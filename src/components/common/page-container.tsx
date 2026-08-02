@@ -11,12 +11,11 @@ type PageContainerProps = {
   className?: string;
 };
 
-/**
- * 共通の横幅とページ余白を適用する。
- * 画面ごとに最大幅や左右余白を重複指定しないための共通コンポーネント。
- */
+/** サイト全体で統一した最大幅とレスポンシブな左右余白を適用する。 */
 export function PageContainer({ children, className }: PageContainerProps) {
-  const classes = ['mx-auto w-full max-w-6xl px-page', className].filter(Boolean).join(' ');
+  const classes = ['mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8', className]
+    .filter(Boolean)
+    .join(' ');
 
   return <div className={classes}>{children}</div>;
 }
