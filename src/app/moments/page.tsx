@@ -9,7 +9,7 @@ import { EmptyState } from '@/components/common/empty-state';
 import { LinkButton } from '@/components/common/link-button';
 import { PageHeader } from '@/components/common/page-header';
 import { Pagination } from '@/components/common/pagination';
-import { Panel } from '@/components/common/panel';
+import { SectionHeader } from '@/components/common/section-header';
 import { MomentListFilterForm } from '@/components/moments/moment-list-filter-form';
 import { MomentList } from '@/components/moments/moment-list';
 import { DATA_LIMITS, ITEMS_PER_PAGE } from '@/lib/constants';
@@ -44,8 +44,7 @@ export const metadata: Metadata = {
 
 /** 件数、一覧条件、現在ページの場面と関連試合を取得して表示する。 */
 export default async function MomentsPage({ searchParams }: MomentsPageProps) {
-  const rawSearchParams = await searchParams;
-  const requestedQuery = parseMomentListSearchParams(rawSearchParams);
+  const requestedQuery = parseMomentListSearchParams(await searchParams);
 
   // 登録総数・お気に入り総数と、現在の条件に一致する件数を並列で取得する。
   const [matchCount, momentCount, favoriteMomentCount, filteredMomentCount] = await Promise.all([
@@ -67,55 +66,68 @@ export default async function MomentsPage({ searchParams }: MomentsPageProps) {
   const firstItemNumber = filteredMomentCount === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1;
   const lastItemNumber = Math.min(currentPage * ITEMS_PER_PAGE, filteredMomentCount);
 
+  const headerMetadata = (
+    <dl className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+      <div className="flex items-baseline gap-1.5">
+        <dt className="text-muted">登録</dt>
+        <dd className="text-text font-semibold tabular-nums">
+          {momentCount}
+          <span className="text-muted ml-1 text-xs font-normal">件</span>
+        </dd>
+      </div>
+      <div className="border-border/50 flex items-baseline gap-1.5 sm:border-l sm:pl-4">
+        <dt className="text-favorite font-medium">
+          <span aria-hidden="true" className="mr-1">
+            ★
+          </span>
+          お気に入り
+        </dt>
+        <dd className="text-text font-semibold tabular-nums">
+          {favoriteMomentCount}
+          <span className="text-muted ml-1 text-xs font-normal">件</span>
+        </dd>
+      </div>
+    </dl>
+  );
+
+  const headerActions =
+    matchCount === 0 ? (
+      <div className="max-w-xs text-right">
+        <LinkButton href="/matches/new" variant="primary">
+          試合を登録
+        </LinkButton>
+        <p className="text-muted mt-2 text-xs leading-5">場面を登録するには試合が必要です。</p>
+      </div>
+    ) : hasReachedLimit ? (
+      <div className="max-w-xs text-right">
+        <Button disabled>場面を登録</Button>
+        <p className="text-muted mt-2 text-xs leading-5">
+          最大 {DATA_LIMITS.moments} 件に到達しています。
+        </p>
+      </div>
+    ) : (
+      <LinkButton href="/moments/new" variant="primary">
+        場面を登録
+      </LinkButton>
+    );
+
   return (
-    <div className="space-y-section">
+    <div className="space-y-6 sm:space-y-7">
       <PageHeader
+        eyebrow="Moments"
         title="場面一覧"
-        description={`登録済み ${momentCount} 件のうち、現在の条件に一致する場面は ${filteredMomentCount} 件です。`}
-        actions={
-          matchCount === 0 ? (
-            <div className="max-w-xs text-right">
-              <LinkButton href="/matches/new" variant="primary">
-                試合を登録
-              </LinkButton>
-              <p className="text-muted mt-2 text-sm leading-5">
-                場面を登録するには試合が必要です。
-              </p>
-            </div>
-          ) : hasReachedLimit ? (
-            <div className="max-w-xs text-right">
-              <Button disabled>場面を登録</Button>
-              <p className="text-muted mt-2 text-sm leading-5">
-                最大 {DATA_LIMITS.moments} 件に到達しています。
-              </p>
-            </div>
-          ) : (
-            <LinkButton href="/moments/new" variant="primary">
-              場面を登録
-            </LinkButton>
-          )
-        }
+        description="記録した場面を検索・絞り込みし、試合の記憶を振り返ります。"
+        metadata={headerMetadata}
+        actions={headerActions}
       />
-
-      <Panel tone="muted">
-        <dl className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <dt className="text-muted text-sm font-medium">登録済み場面数</dt>
-            <dd className="text-text mt-1 text-xl font-semibold">{momentCount} 件</dd>
-          </div>
-
-          <div>
-            <dt className="text-muted text-sm font-medium">お気に入り場面数</dt>
-            <dd className="text-text mt-1 text-xl font-semibold">{favoriteMomentCount} 件</dd>
-          </div>
-        </dl>
-      </Panel>
 
       <MomentListFilterForm query={query} />
 
       {momentCount === 0 ? (
         <EmptyState
-          message="まだ場面が登録されていません。場面を登録するには、関連する試合が必要です。"
+          eyebrow="Empty Archive"
+          title="まだ場面が登録されていません"
+          message="場面を登録するには、関連する試合が必要です。"
           actions={
             matchCount === 0 ? (
               <LinkButton href="/matches/new" variant="primary">
@@ -130,21 +142,27 @@ export default async function MomentsPage({ searchParams }: MomentsPageProps) {
         />
       ) : filteredMomentCount === 0 ? (
         <EmptyState
-          message="条件に一致する場面がありません。条件を変更するか、条件をリセットしてください。"
+          eyebrow="No Results"
+          title="条件に一致する場面がありません"
+          message="条件を変更するか、一覧条件をリセットしてください。"
           actions={<LinkButton href="/moments">条件をリセット</LinkButton>}
         />
       ) : (
         <section aria-labelledby="moment-list-results-title">
-          <div className="mb-4">
-            <h2 id="moment-list-results-title" className="text-text text-xl font-semibold">
-              検索結果
-            </h2>
-            <p className="text-muted mt-1 text-sm">
-              {filteredMomentCount} 件中 {firstItemNumber}〜{lastItemNumber} 件
-            </p>
-          </div>
+          <SectionHeader
+            eyebrow="Results"
+            title="検索結果"
+            titleId="moment-list-results-title"
+            aside={
+              <p className="text-muted text-sm tabular-nums">
+                {filteredMomentCount} 件中 {firstItemNumber}〜{lastItemNumber} 件
+              </p>
+            }
+          />
 
-          <MomentList moments={moments} favoriteAction={toggleMomentFavoriteAction} />
+          <div className="mt-4">
+            <MomentList moments={moments} favoriteAction={toggleMomentFavoriteAction} />
+          </div>
 
           <Pagination
             pathname="/moments"
