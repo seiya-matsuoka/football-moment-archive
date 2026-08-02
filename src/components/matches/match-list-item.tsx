@@ -1,11 +1,11 @@
 /**
- * 試合一覧で、試合 1 件分の情報を表示するコンポーネント。
+ * 試合一覧で、試合 1 件分の情報を独立した Compact Card として表示するコンポーネント。
  */
 
 import Link from 'next/link';
 
-import { Panel } from '@/components/common/panel';
-import { formatFixture, formatMatchDate, formatScore } from '@/lib/format';
+import { MatchScoreboard } from '@/components/common/match-scoreboard';
+import { formatFixture, formatMatchDate } from '@/lib/format';
 import type { MatchWithMomentCount } from '@/types/match';
 
 type MatchListItemProps = {
@@ -13,43 +13,46 @@ type MatchListItemProps = {
   match: MatchWithMomentCount;
 };
 
-/** 対戦カード、試合日、スコア、場面数と詳細画面への導線を表示する。 */
+/** Home / Score / Away、試合日、場面数、詳細導線を表示する。 */
 export function MatchListItem({ match }: MatchListItemProps) {
   const fixture = formatFixture(match.homeTeamCode, match.awayTeamCode);
 
   return (
-    <li>
-      <Panel>
-        {/* 対戦カードを、試合詳細へ移動する主な導線として表示する。 */}
-        <h2 className="text-text text-lg font-semibold">
-          <Link
-            href={`/matches/${match.id}`}
-            className="rounded-control hover:text-muted focus-visible:outline-focus focus-visible:outline-2 focus-visible:outline-offset-2"
-          >
-            {fixture}
-          </Link>
-        </h2>
+    <li className="border-border/65 bg-surface hover:border-border-strong/75 hover:bg-surface-raised rounded-panel shadow-panel flex h-full min-w-0 flex-col border p-4 transition-colors sm:p-5">
+      <h2 className="sr-only">{fixture}</h2>
+      <MatchScoreboard
+        homeTeamCode={match.homeTeamCode}
+        awayTeamCode={match.awayTeamCode}
+        homeScore={match.homeScore}
+        awayScore={match.awayScore}
+        density="compact"
+      />
 
-        {/* 一覧で比較する情報を、画面幅に応じて折り返して表示する。 */}
-        <dl className="mt-4 grid gap-4 sm:grid-cols-3">
+      <div className="border-border/45 mt-5 flex items-end justify-between gap-4 border-t pt-4">
+        <dl className="flex min-w-0 flex-wrap gap-x-5 gap-y-3">
           <div>
-            <dt className="text-muted text-sm font-medium">試合日</dt>
-            <dd className="text-text mt-1 text-sm">{formatMatchDate(match.matchDate)}</dd>
-          </div>
-
-          <div>
-            <dt className="text-muted text-sm font-medium">スコア</dt>
-            <dd className="text-text mt-1 text-sm">
-              {formatScore(match.homeScore, match.awayScore)}
+            <dt className="text-muted text-xs font-medium">試合日</dt>
+            <dd className="text-text mt-1.5 text-sm tabular-nums">
+              {formatMatchDate(match.matchDate)}
             </dd>
           </div>
-
           <div>
-            <dt className="text-muted text-sm font-medium">場面数</dt>
-            <dd className="text-text mt-1 text-sm">{match.momentCount} 件</dd>
+            <dt className="text-muted text-xs font-medium">関連する場面</dt>
+            <dd className="text-text mt-1.5 text-sm tabular-nums">{match.momentCount} 件</dd>
           </div>
         </dl>
-      </Panel>
+
+        <Link
+          href={`/matches/${match.id}`}
+          aria-label={`${fixture}の試合詳細を見る`}
+          className="text-accent hover:text-text focus-visible:outline-focus rounded-control inline-flex min-h-10 shrink-0 items-center text-sm font-semibold whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
+        >
+          試合詳細を見る
+          <span aria-hidden="true" className="ml-1.5">
+            →
+          </span>
+        </Link>
+      </div>
     </li>
   );
 }
