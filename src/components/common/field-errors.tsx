@@ -9,16 +9,16 @@ type FieldErrorsProps = {
   errors?: readonly string[];
 };
 
-/** エラーが存在する場合だけ、項目の直後へメッセージを表示する。 */
+/** エラーが存在する場合だけ、色に依存しない文言付きで表示する。 */
 export function FieldErrors({ id, errors }: FieldErrorsProps) {
   if (!errors || errors.length === 0) {
     return null;
   }
 
   return (
-    <ul id={id} className="text-error mt-2 space-y-1 text-sm" aria-live="polite">
+    <ul id={id} className="text-error mt-2 space-y-1 text-sm leading-6" aria-live="polite">
       {errors.map((error) => (
-        <li key={error}>{error}</li>
+        <li key={error}>エラー：{error}</li>
       ))}
     </ul>
   );
