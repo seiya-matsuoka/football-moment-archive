@@ -103,55 +103,54 @@
 }
 
 /*
- * 全要素でサイズ計算方法を統一する。
+ * HTML 要素に対する既定スタイルは Tailwind CSS の base layer へ配置する。
+ * Utility class が同じプロパティを指定した場合に、意図どおり上書きできるようにする。
  */
-* {
-  box-sizing: border-box;
-}
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
 
-html {
-  min-width: 320px;
-  background: var(--app-color-background);
-  color-scheme: dark;
-}
+  html {
+    min-width: 320px;
+    background: var(--app-color-background);
+    color-scheme: dark;
+  }
 
-/*
- * 全画面に共通する背景色、文字色、基本フォントだけを設定する。
- * コンポーネント固有のスタイルは Tailwind CSS で TSX 側に記載する。
- */
-body {
-  min-height: 100vh;
-  margin: 0;
-  background: var(--app-color-background);
-  color: var(--app-color-text);
-  font-family: Arial, Helvetica, sans-serif;
-  text-rendering: optimizeLegibility;
-}
+  body {
+    min-height: 100vh;
+    margin: 0;
+    background: var(--app-color-background);
+    color: var(--app-color-text);
+    font-family: Arial, Helvetica, sans-serif;
+    text-rendering: optimizeLegibility;
+  }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
 
-button,
-input,
-select,
-textarea {
-  font: inherit;
-}
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
 
-input::placeholder,
-textarea::placeholder {
-  color: var(--app-color-muted);
-  opacity: 1;
-}
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--app-color-muted);
+    opacity: 1;
+  }
 
-button,
-a {
-  -webkit-tap-highlight-color: transparent;
-}
+  button,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
 
-::selection {
-  background: var(--app-color-accent);
-  color: var(--app-color-accent-foreground);
+  ::selection {
+    background: var(--app-color-accent);
+    color: var(--app-color-accent-foreground);
+  }
 }
