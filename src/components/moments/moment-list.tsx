@@ -1,5 +1,5 @@
 /**
- * 取得済みの場面と関連試合を一覧として並べるコンポーネント。
+ * 取得済みの場面と関連試合を、レスポンシブな Card Grid として並べるコンポーネント。
  */
 
 import type { MomentFavoriteActionWithId } from '@/types/moment-action';
@@ -19,10 +19,11 @@ type MomentListProps = {
 /**
  * 空状態は登録総数や条件一致件数を把握している Page が判断し、
  * このコンポーネントは取得済みの場面を並べることだけを担当する。
+ * Mobile・Tablet は 1 列、PC は 2 列で場面 Card を表示する。
  */
 export function MomentList({ moments, favoriteAction, itemHeadingLevel = 2 }: MomentListProps) {
   return (
-    <ul className="grid gap-4">
+    <ul className="grid gap-4 lg:grid-cols-2">
       {moments.map((moment) => (
         <MomentListItem
           key={moment.id}

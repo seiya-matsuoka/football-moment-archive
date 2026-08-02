@@ -1,5 +1,5 @@
 /**
- * 場面一覧、試合詳細、ホームで共有する場面の要約表示。
+ * 場面一覧、試合詳細、ホームで共有する場面の Compact な要約表示。
  */
 
 import Link from 'next/link';
@@ -19,55 +19,62 @@ type MomentSummaryProps = {
   favoriteAction?: MomentFavoriteAction;
 };
 
-/** 場面のタイトル、種類、任意の要約項目、お気に入り状態を表示する。 */
+/** 種別・発生時間、タイトル、対象、お気に入りを一覧用の情報階層で表示する。 */
 export function MomentSummary({ moment, headingLevel, favoriteAction }: MomentSummaryProps) {
   const Heading = headingLevel === 2 ? 'h2' : 'h3';
 
   return (
-    <div>
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          {/* タイトルを場面詳細へ移動する主な導線として表示する。 */}
-          <Heading className="text-text text-lg font-semibold">
+    <div className="min-w-0">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-5">
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="border-accent/45 bg-accent/10 text-accent inline-flex min-h-7 items-center rounded-full border px-2.5 py-1 text-xs font-bold tracking-wide">
+              {getMomentTypeLabel(moment.momentType)}
+            </span>
+            {moment.timeLabel ? (
+              <span className="text-muted text-xs font-medium tabular-nums">
+                {moment.timeLabel}
+              </span>
+            ) : null}
+          </div>
+
+          <Heading className="text-text mt-3 text-lg leading-snug font-semibold sm:text-xl">
             <Link
               href={`/moments/${moment.id}`}
-              className="rounded-control hover:text-muted focus-visible:outline-focus focus-visible:outline-2 focus-visible:outline-offset-2"
+              className="hover:text-accent focus-visible:outline-focus rounded-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
             >
               {moment.title}
             </Link>
           </Heading>
-          <p className="text-muted mt-1 text-sm">{getMomentTypeLabel(moment.momentType)}</p>
-        </div>
-
-        {favoriteAction ? (
-          <FavoriteToggleForm action={favoriteAction} isFavorite={moment.isFavorite} />
-        ) : (
-          <p
-            className={`${moment.isFavorite ? 'text-favorite' : 'text-muted'} shrink-0 text-sm font-medium`}
-          >
-            {moment.isFavorite ? 'お気に入り' : 'お気に入り未登録'}
-          </p>
-        )}
-      </div>
-
-      {/* 任意項目は値がある場合だけ表示し、空のラベルを残さない。 */}
-      {moment.timeLabel || moment.subject ? (
-        <dl className="mt-4 grid gap-4 sm:grid-cols-2">
-          {moment.timeLabel ? (
-            <div>
-              <dt className="text-muted text-sm font-medium">発生時間</dt>
-              <dd className="text-text mt-1 text-sm">{moment.timeLabel}</dd>
-            </div>
-          ) : null}
 
           {moment.subject ? (
-            <div>
-              <dt className="text-muted text-sm font-medium">対象</dt>
-              <dd className="text-text mt-1 text-sm">{moment.subject}</dd>
-            </div>
+            <p className="text-muted mt-2 text-sm leading-6 wrap-break-word">
+              <span className="text-subtle mr-2 text-xs font-bold tracking-[0.12em] uppercase">
+                Subject
+              </span>
+              {moment.subject}
+            </p>
           ) : null}
-        </dl>
-      ) : null}
+        </div>
+
+        <div className="shrink-0">
+          {favoriteAction ? (
+            <FavoriteToggleForm action={favoriteAction} isFavorite={moment.isFavorite} />
+          ) : (
+            <p
+              className={[
+                'text-sm font-semibold',
+                moment.isFavorite ? 'text-favorite' : 'text-muted',
+              ].join(' ')}
+            >
+              <span aria-hidden="true" className="mr-1.5">
+                {moment.isFavorite ? '★' : '☆'}
+              </span>
+              {moment.isFavorite ? 'お気に入り' : 'お気に入り未登録'}
+            </p>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
