@@ -1,99 +1,72 @@
 /**
- * 場面詳細画面で、場面の全情報とお気に入り操作を表示するコンポーネント。
+ * 場面詳細画面で、対象、説明、印象、記録日時をまとめて表示するコンポーネント。
  */
 
-import { Panel } from '@/components/common/panel';
-import { formatDateTime, getMomentTypeLabel } from '@/lib/format';
-import type { MomentFavoriteAction } from '@/types/moment-action';
+import { formatDateTime } from '@/lib/format';
 import type { Moment } from '@/types/moment';
-
-import { FavoriteToggleForm } from './favorite-toggle-form';
 
 type MomentDetailProps = {
   /** 詳細表示する場面。 */
   moment: Moment;
-  /** 場面 ID を束縛したお気に入り切り替え Server Action。 */
-  favoriteAction: MomentFavoriteAction;
 };
 
-/** 場面の基本情報、任意の本文、管理情報、お気に入り操作を表示する。 */
-export function MomentDetail({ moment, favoriteAction }: MomentDetailProps) {
+/** 場面の内容を、場面一覧と共通する Surface と Divider の表現で表示する。 */
+export function MomentDetail({ moment }: MomentDetailProps) {
   return (
-    <Panel>
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <p className="text-muted text-sm font-medium">場面の種類</p>
-          <p className="text-text mt-1 text-lg font-semibold">
-            {getMomentTypeLabel(moment.momentType)}
-          </p>
-        </div>
+    <article className="border-border bg-surface rounded-panel shadow-panel border p-5 sm:p-7">
+      <p className="text-accent text-[0.68rem] font-bold tracking-[0.18em] uppercase">
+        Moment Detail
+      </p>
+      <h2 className="text-text mt-1 text-xl font-semibold">場面詳細</h2>
 
-        <FavoriteToggleForm action={favoriteAction} isFavorite={moment.isFavorite} />
+      <div className="border-border/55 mt-5 border-t">
+        <section aria-labelledby="moment-subject-title" className="py-5 sm:py-6">
+          <p className="text-subtle text-xs font-bold tracking-[0.14em] uppercase">Subject</p>
+          <h3 id="moment-subject-title" className="text-text mt-1 text-lg font-semibold">
+            対象
+          </h3>
+          <p className="text-text mt-3 text-base leading-7 wrap-break-word">
+            {moment.subject ?? '未入力'}
+          </p>
+        </section>
+
+        <section
+          aria-labelledby="moment-description-title"
+          className="border-border/45 border-t py-5 sm:py-6"
+        >
+          <p className="text-subtle text-xs font-bold tracking-[0.14em] uppercase">What Happened</p>
+          <h3 id="moment-description-title" className="text-text mt-1 text-lg font-semibold">
+            何が起きたか
+          </h3>
+          <p className="text-text mt-3 max-w-[70ch] text-base leading-8 wrap-break-word whitespace-pre-wrap">
+            {moment.description ?? '未入力'}
+          </p>
+        </section>
+
+        <section
+          aria-labelledby="moment-memory-note-title"
+          className="border-border/45 border-t py-5 sm:py-6"
+        >
+          <p className="text-subtle text-xs font-bold tracking-[0.14em] uppercase">Memory</p>
+          <h3 id="moment-memory-note-title" className="text-text mt-1 text-lg font-semibold">
+            なぜ印象に残ったか
+          </h3>
+          <p className="text-text mt-3 max-w-[70ch] text-base leading-8 wrap-break-word whitespace-pre-wrap">
+            {moment.memoryNote ?? '未入力'}
+          </p>
+        </section>
       </div>
 
-      {/* 発生時間と対象は、どちらかに値がある場合だけ情報欄を作成する。 */}
-      {moment.timeLabel || moment.subject ? (
-        <dl className="mt-section border-border pt-section grid gap-4 border-t sm:grid-cols-2">
-          {moment.timeLabel ? (
-            <div>
-              <dt className="text-muted text-sm font-medium">発生時間</dt>
-              <dd className="text-text mt-1 text-sm">{moment.timeLabel}</dd>
-            </div>
-          ) : null}
-
-          {moment.subject ? (
-            <div>
-              <dt className="text-muted text-sm font-medium">対象</dt>
-              <dd className="text-text mt-1 text-sm">{moment.subject}</dd>
-            </div>
-          ) : null}
-        </dl>
-      ) : null}
-
-      {/* 長文の任意項目は、値がある項目だけ見出しと本文を表示する。 */}
-      {moment.description || moment.memoryNote ? (
-        <div className="mt-section border-border pt-section gap-section grid border-t">
-          {moment.description ? (
-            <section aria-labelledby="moment-description-title">
-              <h2 id="moment-description-title" className="text-text text-base font-semibold">
-                何が起きたか
-              </h2>
-              <p className="text-text mt-3 text-sm leading-7 whitespace-pre-wrap">
-                {moment.description}
-              </p>
-            </section>
-          ) : null}
-
-          {moment.memoryNote ? (
-            <section aria-labelledby="moment-memory-note-title">
-              <h2 id="moment-memory-note-title" className="text-text text-base font-semibold">
-                なぜ印象に残ったか
-              </h2>
-              <p className="text-text mt-3 text-sm leading-7 whitespace-pre-wrap">
-                {moment.memoryNote}
-              </p>
-            </section>
-          ) : null}
-        </div>
-      ) : null}
-
-      {/* DB 上の識別情報と更新状況は、本文より優先度を下げて表示する。 */}
-      <dl className="mt-section border-border pt-section grid gap-4 border-t sm:grid-cols-3">
+      <dl className="border-border/55 grid gap-4 border-t pt-5 text-sm sm:grid-cols-2 sm:gap-6">
         <div>
-          <dt className="text-muted text-sm font-medium">場面 ID</dt>
-          <dd className="text-text mt-1 text-sm">{moment.id}</dd>
+          <dt className="text-muted text-xs font-medium">登録日時</dt>
+          <dd className="text-text mt-1.5 wrap-break-word">{formatDateTime(moment.createdAt)}</dd>
         </div>
-
         <div>
-          <dt className="text-muted text-sm font-medium">登録日時</dt>
-          <dd className="text-text mt-1 text-sm">{formatDateTime(moment.createdAt)}</dd>
-        </div>
-
-        <div>
-          <dt className="text-muted text-sm font-medium">更新日時</dt>
-          <dd className="text-text mt-1 text-sm">{formatDateTime(moment.updatedAt)}</dd>
+          <dt className="text-muted text-xs font-medium">更新日時</dt>
+          <dd className="text-text mt-1.5 wrap-break-word">{formatDateTime(moment.updatedAt)}</dd>
         </div>
       </dl>
-    </Panel>
+    </article>
   );
 }

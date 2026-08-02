@@ -7,10 +7,12 @@ import { notFound } from 'next/navigation';
 
 import { LinkButton } from '@/components/common/link-button';
 import { PageHeader } from '@/components/common/page-header';
-import { Panel } from '@/components/common/panel';
+import { SectionHeader } from '@/components/common/section-header';
+import { FavoriteToggleForm } from '@/components/moments/favorite-toggle-form';
 import { MomentDeleteForm } from '@/components/moments/moment-delete-form';
 import { MomentDetail } from '@/components/moments/moment-detail';
 import { MomentMatchSummary } from '@/components/moments/moment-match-summary';
+import { getMomentTypeLabel } from '@/lib/format';
 import { parsePositiveIntegerId } from '@/lib/validation/id';
 import { getMomentById } from '@/server/data-access/moments';
 
@@ -26,50 +28,50 @@ export const dynamic = 'force-dynamic';
 
 /** 対象場面のタイトルを使用して動的なページタイトルを生成する。 */
 export async function generateMetadata({ params }: MomentDetailPageProps): Promise<Metadata> {
-  const { id: idParam } = await params;
-  const momentId = parsePositiveIntegerId(idParam);
-
-  if (momentId === null) {
-    notFound();
-  }
-
+  const momentId = parsePositiveIntegerId((await params).id);
+  if (momentId === null) notFound();
   const moment = await getMomentById(momentId);
-
-  if (moment === null) {
-    notFound();
-  }
-
-  return {
-    title: moment.title,
-  };
+  if (moment === null) notFound();
+  return { title: moment.title };
 }
 
 /** 場面と関連試合を取得し、更新・削除・お気に入り操作とともに表示する。 */
 export default async function MomentDetailPage({ params }: MomentDetailPageProps) {
-  const { id: idParam } = await params;
-  const momentId = parsePositiveIntegerId(idParam);
-
-  if (momentId === null) {
-    notFound();
-  }
-
+  const momentId = parsePositiveIntegerId((await params).id);
+  if (momentId === null) notFound();
   const moment = await getMomentById(momentId);
-
-  if (moment === null) {
-    notFound();
-  }
+  if (moment === null) notFound();
 
   const favoriteActionWithId = toggleMomentFavoriteAction.bind(null, moment.id);
   const deleteActionWithId = deleteMomentAction.bind(null, moment.id);
 
+  const metadata = (
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+      <span className="border-accent/45 bg-accent/10 text-accent inline-flex min-h-7 items-center rounded-full border px-2.5 py-1 text-xs font-bold tracking-wide">
+        {getMomentTypeLabel(moment.momentType)}
+      </span>
+      {moment.timeLabel ? (
+        <span className="text-muted text-xs font-medium tabular-nums">{moment.timeLabel}</span>
+      ) : null}
+      <span className="text-xs font-medium">
+        <span className="text-muted">お気に入り：</span>
+        <span className={moment.isFavorite ? 'text-favorite' : 'text-muted'}>
+          {moment.isFavorite ? '登録済み' : '未登録'}
+        </span>
+      </span>
+    </div>
+  );
+
   return (
-    <div className="space-y-section">
+    <div className="space-y-6 sm:space-y-8">
       <PageHeader
+        eyebrow="Moment"
         title={moment.title}
-        description="記録した場面の内容と、関連する試合を表示します。"
+        metadata={metadata}
+        backLink={{ href: '/moments', label: '場面一覧へ戻る' }}
         actions={
           <>
-            <LinkButton href="/moments">場面一覧へ戻る</LinkButton>
+            <FavoriteToggleForm action={favoriteActionWithId} isFavorite={moment.isFavorite} />
             <LinkButton href={`/moments/${moment.id}/edit`} variant="primary">
               場面を編集
             </LinkButton>
@@ -77,18 +79,21 @@ export default async function MomentDetailPage({ params }: MomentDetailPageProps
         }
       />
 
-      <MomentDetail moment={moment} favoriteAction={favoriteActionWithId} />
+      <div className="grid gap-5 sm:gap-6">
+        <MomentDetail moment={moment} />
 
-      <section aria-labelledby="related-match-title">
-        <h2 id="related-match-title" className="text-text mb-4 text-xl font-semibold">
-          関連する試合
-        </h2>
-        <Panel>
-          <MomentMatchSummary match={moment.match} />
-        </Panel>
-      </section>
+        <section
+          aria-labelledby="related-match-title"
+          className="border-border bg-surface rounded-panel shadow-panel border p-5 sm:p-6"
+        >
+          <SectionHeader eyebrow="Match" title="関連する試合" titleId="related-match-title" />
+          <div className="mt-5">
+            <MomentMatchSummary match={moment.match} density="detail" />
+          </div>
+        </section>
 
-      <MomentDeleteForm action={deleteActionWithId} title={moment.title} />
+        <MomentDeleteForm action={deleteActionWithId} title={moment.title} />
+      </div>
     </div>
   );
 }
