@@ -87,6 +87,13 @@ export default async function MomentsPage({ searchParams }: MomentsPageProps) {
           <span className="text-muted ml-1 text-xs font-normal">件</span>
         </dd>
       </div>
+      <div className="border-border/50 flex items-baseline gap-1.5 sm:border-l sm:pl-4">
+        <dt className="text-muted">条件一致</dt>
+        <dd className="text-text font-semibold tabular-nums">
+          {filteredMomentCount}
+          <span className="text-muted ml-1 text-xs font-normal">件</span>
+        </dd>
+      </div>
     </dl>
   );
 
