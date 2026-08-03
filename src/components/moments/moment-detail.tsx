@@ -2,6 +2,7 @@
  * 場面詳細画面で、対象、説明、印象、記録日時をまとめて表示するコンポーネント。
  */
 
+import { SectionHeader } from '@/components/common/section-header';
 import { formatDateTime } from '@/lib/format';
 import type { Moment } from '@/types/moment';
 
@@ -14,10 +15,7 @@ type MomentDetailProps = {
 export function MomentDetail({ moment }: MomentDetailProps) {
   return (
     <article className="border-border bg-surface rounded-panel shadow-panel border p-5 sm:p-7">
-      <p className="text-accent text-[0.68rem] font-bold tracking-[0.18em] uppercase">
-        Moment Detail
-      </p>
-      <h2 className="text-text mt-1 text-xl font-semibold">場面詳細</h2>
+      <SectionHeader eyebrow="Moment Detail" title="場面詳細" />
 
       <div className="border-border/55 mt-5 border-t">
         <section aria-labelledby="moment-subject-title" className="py-5 sm:py-6">
