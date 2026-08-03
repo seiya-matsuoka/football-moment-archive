@@ -6,9 +6,17 @@
 
 import { useActionState } from 'react';
 
-import { Button } from '@/components/common/button';
 import { FieldErrors } from '@/components/common/field-errors';
-import { LinkButton } from '@/components/common/link-button';
+import {
+  FormActions,
+  FormDemoNotice,
+  FormSectionHeader,
+  FormSurface,
+  OptionalLabel,
+  RequiredLabel,
+  getAriaDescribedBy,
+  getFormControlClassName,
+} from '@/components/common/form-ui';
 import { Panel } from '@/components/common/panel';
 import { TARGET_COMPETITION, TEAM_OPTIONS } from '@/lib/constants';
 import type { MatchFormAction, MatchFormState, MatchFormValues } from '@/types/match-action';
@@ -25,15 +33,6 @@ type MatchFormProps = {
   /** キャンセル時の移動先。 */
   cancelHref: string;
 };
-
-/** 入力要素へ共通して適用する基本スタイル。 */
-const formControlBaseClassName =
-  'mt-2 min-h-11 w-full rounded-control border bg-surface px-3 py-2 text-base text-text disabled:cursor-not-allowed disabled:opacity-60 focus:outline-2 focus:outline-offset-2 focus:outline-focus';
-
-/** Validation 結果に応じて入力要素の枠線を切り替える。 */
-function getFormControlClassName(hasError: boolean): string {
-  return `${formControlBaseClassName} ${hasError ? 'border-error-border' : 'border-border'}`;
-}
 
 /** エラー表示と入力値保持に対応した試合フォームを表示する。 */
 export function MatchForm({
@@ -59,7 +58,7 @@ export function MatchForm({
   const awayScoreErrors = state.fieldErrors.awayScore;
 
   return (
-    <form action={formAction} noValidate className="space-y-6" aria-busy={isPending}>
+    <form action={formAction} noValidate className="space-y-5" aria-busy={isPending}>
       {/* 業務条件や DB 更新時など、フォーム全体に関わるエラーを表示する。 */}
       {state.message ? (
         <Panel tone="error">
@@ -69,98 +68,135 @@ export function MatchForm({
         </Panel>
       ) : null}
 
-      <Panel>
-        {/*
-         * エラー返却時に key を変更して非制御入力を再生成し、
-         * Server Action から返された入力値を `defaultValue` へ反映する。
-         */}
-        <fieldset
-          key={state.revision}
-          disabled={isPending}
-          className="space-y-section min-w-0 border-0 p-0"
-        >
+      <FormSurface>
+        <fieldset key={state.revision} disabled={isPending} className="min-w-0 border-0 p-0">
           <legend className="sr-only">試合情報</legend>
 
-          {/* ホームとアウェーは、広い画面では対になる配置で表示する。 */}
-          <div className="grid gap-5 sm:grid-cols-2">
-            <div>
-              <label htmlFor="home-team-code" className="text-text text-sm font-medium">
-                ホームチーム <span className="text-error">必須</span>
-              </label>
-              <select
-                id="home-team-code"
-                name="homeTeamCode"
-                required
-                defaultValue={state.values.homeTeamCode}
-                className={getFormControlClassName(Boolean(homeTeamErrors?.length))}
-                aria-invalid={Boolean(homeTeamErrors?.length)}
-                aria-describedby={homeTeamErrors?.length ? 'home-team-code-errors' : undefined}
-              >
-                <option value="">選択してください</option>
-                {TEAM_OPTIONS.map((team) => (
-                  <option key={team.code} value={team.code}>
-                    {team.name}
-                  </option>
-                ))}
-              </select>
-              <FieldErrors id="home-team-code-errors" errors={homeTeamErrors} />
-            </div>
-
-            <div>
-              <label htmlFor="away-team-code" className="text-text text-sm font-medium">
-                アウェーチーム <span className="text-error">必須</span>
-              </label>
-              <select
-                id="away-team-code"
-                name="awayTeamCode"
-                required
-                defaultValue={state.values.awayTeamCode}
-                className={getFormControlClassName(Boolean(awayTeamErrors?.length))}
-                aria-invalid={Boolean(awayTeamErrors?.length)}
-                aria-describedby={awayTeamErrors?.length ? 'away-team-code-errors' : undefined}
-              >
-                <option value="">選択してください</option>
-                {TEAM_OPTIONS.map((team) => (
-                  <option key={team.code} value={team.code}>
-                    {team.name}
-                  </option>
-                ))}
-              </select>
-              <FieldErrors id="away-team-code-errors" errors={awayTeamErrors} />
-            </div>
-          </div>
-
-          <div>
-            <label htmlFor="match-date" className="text-text text-sm font-medium">
-              試合日 <span className="text-muted">任意</span>
-            </label>
-            <input
-              id="match-date"
-              name="matchDate"
-              type="date"
-              min={TARGET_COMPETITION.startDate}
-              max={TARGET_COMPETITION.endDate}
-              defaultValue={state.values.matchDate}
-              className={getFormControlClassName(Boolean(matchDateErrors?.length))}
-              aria-invalid={Boolean(matchDateErrors?.length)}
-              aria-describedby={matchDateErrors?.length ? 'match-date-errors' : 'match-date-help'}
+          <section aria-labelledby="match-form-teams-title" className="p-5 sm:p-6">
+            <FormSectionHeader
+              eyebrow="Teams"
+              title="対戦チーム"
+              titleId="match-form-teams-title"
+              description="対象シーズンの固定チームからホームとアウェイを選択します。"
             />
-            <p id="match-date-help" className="text-muted mt-2 text-sm leading-6">
-              {TARGET_COMPETITION.startDate} から {TARGET_COMPETITION.endDate} までを入力できます。
-            </p>
-            <FieldErrors id="match-date-errors" errors={matchDateErrors} />
-          </div>
-
-          {/* スコアは両方入力または両方未入力とする。 */}
-          <div>
-            <p className="text-text text-sm font-medium">
-              スコア <span className="text-muted">任意・両方入力</span>
+            <p className="text-subtle mt-2 text-sm leading-6">
+              「必須」と表示された項目は入力が必要です。
             </p>
 
-            <div className="mt-3 grid gap-5 sm:grid-cols-2">
+            <div className="mt-6 grid gap-6 md:grid-cols-2">
+              <div>
+                <label htmlFor="home-team-code" className="text-text text-sm font-medium">
+                  ホームチーム
+                  <RequiredLabel />
+                </label>
+                <select
+                  id="home-team-code"
+                  name="homeTeamCode"
+                  required
+                  defaultValue={state.values.homeTeamCode}
+                  className={getFormControlClassName(Boolean(homeTeamErrors?.length))}
+                  aria-invalid={Boolean(homeTeamErrors?.length)}
+                  aria-describedby={getAriaDescribedBy(
+                    undefined,
+                    'home-team-code-errors',
+                    Boolean(homeTeamErrors?.length),
+                  )}
+                >
+                  <option value="">選択してください</option>
+                  {TEAM_OPTIONS.map((team) => (
+                    <option key={team.code} value={team.code}>
+                      {team.name}
+                    </option>
+                  ))}
+                </select>
+                <FieldErrors id="home-team-code-errors" errors={homeTeamErrors} />
+              </div>
+
+              <div>
+                <label htmlFor="away-team-code" className="text-text text-sm font-medium">
+                  アウェイチーム
+                  <RequiredLabel />
+                </label>
+                <select
+                  id="away-team-code"
+                  name="awayTeamCode"
+                  required
+                  defaultValue={state.values.awayTeamCode}
+                  className={getFormControlClassName(Boolean(awayTeamErrors?.length))}
+                  aria-invalid={Boolean(awayTeamErrors?.length)}
+                  aria-describedby={getAriaDescribedBy(
+                    undefined,
+                    'away-team-code-errors',
+                    Boolean(awayTeamErrors?.length),
+                  )}
+                >
+                  <option value="">選択してください</option>
+                  {TEAM_OPTIONS.map((team) => (
+                    <option key={team.code} value={team.code}>
+                      {team.name}
+                    </option>
+                  ))}
+                </select>
+                <FieldErrors id="away-team-code-errors" errors={awayTeamErrors} />
+              </div>
+            </div>
+          </section>
+
+          <section
+            aria-labelledby="match-form-date-title"
+            className="border-border/55 border-t p-5 sm:p-6"
+          >
+            <FormSectionHeader
+              eyebrow="Match"
+              title="試合情報"
+              titleId="match-form-date-title"
+              description="試合日を入力します。未入力のまま登録することもできます。"
+            />
+
+            <div className="mt-6">
+              <label htmlFor="match-date" className="text-text text-sm font-medium">
+                試合日
+                <OptionalLabel />
+              </label>
+              <input
+                id="match-date"
+                name="matchDate"
+                type="date"
+                min={TARGET_COMPETITION.startDate}
+                max={TARGET_COMPETITION.endDate}
+                defaultValue={state.values.matchDate}
+                className={getFormControlClassName(Boolean(matchDateErrors?.length))}
+                aria-invalid={Boolean(matchDateErrors?.length)}
+                aria-describedby={getAriaDescribedBy(
+                  'match-date-help',
+                  'match-date-errors',
+                  Boolean(matchDateErrors?.length),
+                )}
+              />
+              <p id="match-date-help" className="text-muted mt-2 text-sm leading-6">
+                {TARGET_COMPETITION.startDate} から {TARGET_COMPETITION.endDate}{' '}
+                までを入力できます。
+              </p>
+              <FieldErrors id="match-date-errors" errors={matchDateErrors} />
+            </div>
+          </section>
+
+          <section
+            aria-labelledby="match-form-score-title"
+            className="border-border/55 border-t p-5 sm:p-6"
+          >
+            <FormSectionHeader
+              eyebrow="Score"
+              title="スコア"
+              titleId="match-form-score-title"
+              description="スコアはホームとアウェイを両方入力するか、両方未入力にします。"
+            />
+
+            <div className="mt-6 grid gap-6 md:grid-cols-2">
               <div>
                 <label htmlFor="home-score" className="text-text text-sm font-medium">
                   ホームチーム得点
+                  <OptionalLabel note="任意・両方入力" />
                 </label>
                 <input
                   id="home-score"
@@ -173,14 +209,19 @@ export function MatchForm({
                   defaultValue={state.values.homeScore}
                   className={getFormControlClassName(Boolean(homeScoreErrors?.length))}
                   aria-invalid={Boolean(homeScoreErrors?.length)}
-                  aria-describedby={homeScoreErrors?.length ? 'home-score-errors' : undefined}
+                  aria-describedby={getAriaDescribedBy(
+                    undefined,
+                    'home-score-errors',
+                    Boolean(homeScoreErrors?.length),
+                  )}
                 />
                 <FieldErrors id="home-score-errors" errors={homeScoreErrors} />
               </div>
 
               <div>
                 <label htmlFor="away-score" className="text-text text-sm font-medium">
-                  アウェーチーム得点
+                  アウェイチーム得点
+                  <OptionalLabel note="任意・両方入力" />
                 </label>
                 <input
                   id="away-score"
@@ -193,21 +234,30 @@ export function MatchForm({
                   defaultValue={state.values.awayScore}
                   className={getFormControlClassName(Boolean(awayScoreErrors?.length))}
                   aria-invalid={Boolean(awayScoreErrors?.length)}
-                  aria-describedby={awayScoreErrors?.length ? 'away-score-errors' : undefined}
+                  aria-describedby={getAriaDescribedBy(
+                    undefined,
+                    'away-score-errors',
+                    Boolean(awayScoreErrors?.length),
+                  )}
                 />
                 <FieldErrors id="away-score-errors" errors={awayScoreErrors} />
               </div>
             </div>
-          </div>
+          </section>
         </fieldset>
-      </Panel>
 
-      <div className="flex flex-wrap gap-3">
-        <Button type="submit" variant="primary" disabled={isPending}>
-          {isPending ? pendingLabel : submitLabel}
-        </Button>
-        <LinkButton href={cancelHref}>キャンセル</LinkButton>
-      </div>
+        <div className="border-border border-t p-5 sm:p-6">
+          <FormDemoNotice />
+          <div className="mt-5">
+            <FormActions
+              submitLabel={submitLabel}
+              pendingLabel={pendingLabel}
+              cancelHref={cancelHref}
+              isPending={isPending}
+            />
+          </div>
+        </div>
+      </FormSurface>
     </form>
   );
 }

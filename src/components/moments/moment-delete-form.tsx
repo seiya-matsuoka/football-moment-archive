@@ -8,7 +8,6 @@ import type { FormEvent } from 'react';
 import { useActionState } from 'react';
 
 import { Button } from '@/components/common/button';
-import { Panel } from '@/components/common/panel';
 import type { MomentDeleteAction, MomentDeleteState } from '@/types/moment-action';
 
 type MomentDeleteFormProps = {
@@ -34,28 +33,40 @@ export function MomentDeleteForm({ action, title }: MomentDeleteFormProps) {
   }
 
   return (
-    <section aria-labelledby="moment-delete-title">
-      <h2 id="moment-delete-title" className="text-text text-xl font-semibold">
-        場面の削除
-      </h2>
-
-      <Panel tone={state.status === 'error' ? 'error' : 'default'} className="mt-4">
-        <p className="text-sm leading-6">
-          この場面だけを削除します。関連する試合は削除されません。この操作は元に戻せません。
-        </p>
-
-        {state.message ? (
-          <p role="alert" className="mt-3 text-sm leading-6">
-            {state.message}
+    <section
+      aria-labelledby="moment-delete-title"
+      className="border-error-border bg-error-background rounded-panel border p-5 sm:p-6"
+    >
+      <div className="grid gap-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end sm:gap-8">
+        <div className="max-w-3xl min-w-0">
+          <p className="text-error text-[0.68rem] font-bold tracking-[0.18em] uppercase">
+            Danger Zone
           </p>
-        ) : null}
+          <h2 id="moment-delete-title" className="text-error mt-1 text-xl font-semibold">
+            場面の削除
+          </h2>
 
-        <form action={formAction} onSubmit={handleSubmit} className="mt-4">
-          <Button type="submit" variant="danger" disabled={isPending}>
+          <p className="text-error mt-3 text-sm leading-7">
+            この場面だけを削除します。関連する試合は削除されません。この操作は元に戻せません。
+          </p>
+
+          {state.message ? (
+            <p role="alert" className="text-error mt-3 text-sm leading-6">
+              {state.message}
+            </p>
+          ) : null}
+        </div>
+
+        <form
+          action={formAction}
+          onSubmit={handleSubmit}
+          className="flex shrink-0 justify-end self-end sm:justify-self-end"
+        >
+          <Button type="submit" variant="danger" disabled={isPending} className="min-w-32">
             {isPending ? '削除中' : '場面を削除'}
           </Button>
         </form>
-      </Panel>
+      </div>
     </section>
   );
 }

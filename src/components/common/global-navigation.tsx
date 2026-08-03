@@ -19,12 +19,12 @@ const navigationItems = [
  * 現在地かどうかに関係しないレイアウトと操作時のスタイルをまとめる。
  */
 const navigationLinkBaseClassName =
-  'inline-flex min-h-10 items-center rounded-control px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus';
+  'inline-flex min-h-10 items-center rounded-control px-3 py-2 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-on-brand';
 
 /** 現在地と通常状態で切り替えるスタイル。 */
 const navigationLinkStateClassNames = {
-  current: 'bg-accent text-accent-foreground',
-  default: 'text-muted hover:bg-surface-muted hover:text-text',
+  current: 'bg-brand-soft text-accent-foreground',
+  default: 'text-muted-on-brand hover:bg-brand hover:text-text-on-brand',
 } as const;
 
 /** 現在のパスが、指定されたナビゲーション項目の配下であるかを判定する。 */
@@ -37,7 +37,7 @@ function isCurrentPath(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-/** 現在地を `aria-current` で示すグローバルナビゲーションを表示する。 */
+/** 現在地を視覚表現と `aria-current` の両方で示す。 */
 export function GlobalNavigation() {
   // 現在地の表示にブラウザ側のパス情報が必要なため、このコンポーネントだけ Client Component とする。
   const pathname = usePathname();
@@ -47,16 +47,17 @@ export function GlobalNavigation() {
       <ul className="flex flex-wrap items-center gap-1">
         {navigationItems.map((item) => {
           const isCurrent = isCurrentPath(pathname, item.href);
-          const stateClassName = isCurrent
-            ? navigationLinkStateClassNames.current
-            : navigationLinkStateClassNames.default;
 
           return (
             <li key={item.href}>
               <Link
                 href={item.href}
                 aria-current={isCurrent ? 'page' : undefined}
-                className={`${navigationLinkBaseClassName} ${stateClassName}`}
+                className={`${navigationLinkBaseClassName} ${
+                  isCurrent
+                    ? navigationLinkStateClassNames.current
+                    : navigationLinkStateClassNames.default
+                }`}
               >
                 {item.label}
               </Link>

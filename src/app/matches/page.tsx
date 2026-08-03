@@ -9,6 +9,7 @@ import { EmptyState } from '@/components/common/empty-state';
 import { LinkButton } from '@/components/common/link-button';
 import { PageHeader } from '@/components/common/page-header';
 import { Pagination } from '@/components/common/pagination';
+import { SectionHeader } from '@/components/common/section-header';
 import { MatchListFilterForm } from '@/components/matches/match-list-filter-form';
 import { MatchList } from '@/components/matches/match-list';
 import { DATA_LIMITS, ITEMS_PER_PAGE } from '@/lib/constants';
@@ -35,8 +36,7 @@ export const metadata: Metadata = {
 
 /** 試合総数、条件一致件数、現在ページの試合を取得して表示する。 */
 export default async function MatchesPage({ searchParams }: MatchesPageProps) {
-  const rawSearchParams = await searchParams;
-  const requestedQuery = parseMatchListSearchParams(rawSearchParams);
+  const requestedQuery = parseMatchListSearchParams(await searchParams);
 
   // 登録総数は上限表示、条件一致件数はページ数と空状態の判断に使用する。
   const [matchCount, filteredMatchCount] = await Promise.all([
@@ -57,15 +57,34 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
   const lastItemNumber = Math.min(currentPage * ITEMS_PER_PAGE, filteredMatchCount);
 
   return (
-    <div className="space-y-section">
+    <div className="space-y-6 sm:space-y-7">
       <PageHeader
+        eyebrow="Matches"
         title="試合一覧"
-        description={`登録済み ${matchCount} 件のうち、現在の条件に一致する試合は ${filteredMatchCount} 件です。`}
+        description="登録済みの試合をチームで絞り込み、試合日や登録日時の順に確認します。"
+        metadata={
+          <dl className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+            <div className="flex items-baseline gap-1.5">
+              <dt className="text-muted">登録</dt>
+              <dd className="text-text font-semibold tabular-nums">
+                {matchCount}
+                <span className="text-muted ml-1 text-xs font-normal">件</span>
+              </dd>
+            </div>
+            <div className="border-border/50 flex items-baseline gap-1.5 sm:border-l sm:pl-4">
+              <dt className="text-muted">条件一致</dt>
+              <dd className="text-text font-semibold tabular-nums">
+                {filteredMatchCount}
+                <span className="text-muted ml-1 text-xs font-normal">件</span>
+              </dd>
+            </div>
+          </dl>
+        }
         actions={
           hasReachedLimit ? (
             <div className="max-w-xs text-right">
               <Button disabled>試合を登録</Button>
-              <p className="text-muted mt-2 text-sm leading-5">
+              <p className="text-muted mt-2 text-xs leading-5">
                 最大 {DATA_LIMITS.matches} 件に到達しています。
               </p>
             </div>
@@ -81,7 +100,9 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
 
       {matchCount === 0 ? (
         <EmptyState
-          message="まだ試合が登録されていません。"
+          eyebrow="Empty Archive"
+          title="まだ試合が登録されていません"
+          message="場面を記録する対象となる最初の試合を登録してください。"
           actions={
             <LinkButton href="/matches/new" variant="primary">
               最初の試合を登録
@@ -90,22 +111,26 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
         />
       ) : filteredMatchCount === 0 ? (
         <EmptyState
-          message="条件に一致する試合がありません。条件を変更するか、条件をリセットしてください。"
+          eyebrow="No Results"
+          title="条件に一致する試合がありません"
+          message="条件を変更するか、一覧条件をリセットしてください。"
           actions={<LinkButton href="/matches">条件をリセット</LinkButton>}
         />
       ) : (
         <section aria-labelledby="match-list-results-title">
-          <div className="mb-4">
-            <h2 id="match-list-results-title" className="text-text text-xl font-semibold">
-              検索結果
-            </h2>
-            <p className="text-muted mt-1 text-sm">
-              {filteredMatchCount} 件中 {firstItemNumber}〜{lastItemNumber} 件
-            </p>
+          <SectionHeader
+            eyebrow="Results"
+            title="検索結果"
+            titleId="match-list-results-title"
+            aside={
+              <p className="text-muted text-sm tabular-nums">
+                {filteredMatchCount} 件中 {firstItemNumber}〜{lastItemNumber} 件
+              </p>
+            }
+          />
+          <div className="mt-4">
+            <MatchList matches={matches} />
           </div>
-
-          <MatchList matches={matches} />
-
           <Pagination
             pathname="/matches"
             currentPage={currentPage}

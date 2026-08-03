@@ -4,6 +4,7 @@
 
 import type { Metadata } from 'next';
 
+import { EmptyState } from '@/components/common/empty-state';
 import { LinkButton } from '@/components/common/link-button';
 import { PageHeader } from '@/components/common/page-header';
 import { Panel } from '@/components/common/panel';
@@ -25,9 +26,7 @@ type NewMomentPageProps = {
 export const dynamic = 'force-dynamic';
 
 /** ブラウザのタイトルへ場面登録であることを表示する。 */
-export const metadata: Metadata = {
-  title: '場面登録',
-};
+export const metadata: Metadata = { title: '場面登録' };
 
 /** 場面登録フォーム、試合 0 件、登録上限到達のいずれかを表示する。 */
 export default async function NewMomentPage({ searchParams }: NewMomentPageProps) {
@@ -37,33 +36,33 @@ export default async function NewMomentPage({ searchParams }: NewMomentPageProps
     getMomentCount(),
   ]);
 
-  // 複数値、不正値、存在しない ID は初期選択へ使用せず、通常の登録画面として扱う。
   const requestedMatchId =
     typeof matchIdParam === 'string' ? parsePositiveIntegerId(matchIdParam) : null;
   const initialMatch =
     requestedMatchId === null ? undefined : matches.find((match) => match.id === requestedMatchId);
   const cancelHref = initialMatch ? `/matches/${initialMatch.id}` : '/moments';
+  const backLinkLabel = initialMatch ? '試合詳細へ戻る' : '場面一覧へ戻る';
   const hasReachedLimit = momentCount >= DATA_LIMITS.moments;
 
   return (
-    <div className="space-y-section">
+    <div className="space-y-6 sm:space-y-8">
       <PageHeader
+        eyebrow="New Moment"
         title="場面登録"
         description="登録済みの試合に、記憶に残った場面を追加します。"
-        actions={<LinkButton href={cancelHref}>登録をやめる</LinkButton>}
+        backLink={{ href: cancelHref, label: backLinkLabel }}
       />
 
       {matches.length === 0 ? (
-        <Panel tone="muted">
-          <p className="text-sm leading-6">
-            場面を登録するには、先に関連する試合を登録する必要があります。
-          </p>
-          <div className="mt-4">
+        <EmptyState
+          title="関連する試合がありません"
+          message="場面を登録するには、先に関連する試合を登録する必要があります。"
+          actions={
             <LinkButton href="/matches/new" variant="primary">
               試合を登録
             </LinkButton>
-          </div>
-        </Panel>
+          }
+        />
       ) : hasReachedLimit ? (
         <Panel tone="error">
           <p className="text-sm leading-6">

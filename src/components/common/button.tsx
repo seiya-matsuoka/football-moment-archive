@@ -9,13 +9,14 @@ export type ButtonVariant = 'primary' | 'secondary' | 'danger';
 
 /** 操作要素へ共通して適用するレイアウトと操作状態。 */
 const buttonBaseClassName =
-  'inline-flex min-h-10 items-center justify-center rounded-control border px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus';
+  'inline-flex min-h-11 items-center justify-center rounded-control border px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-55 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus';
 
 /** 操作の目的に応じて切り替える色と枠線。 */
 const buttonVariantClassNames: Record<ButtonVariant, string> = {
-  primary: 'border-accent bg-accent text-accent-foreground hover:opacity-90',
-  secondary: 'border-border bg-surface text-text hover:bg-surface-muted',
-  danger: 'border-danger bg-danger text-danger-foreground hover:opacity-90',
+  primary: 'border-accent bg-accent text-accent-foreground hover:border-focus hover:bg-focus',
+  secondary:
+    'border-border bg-surface text-text hover:border-border-strong hover:bg-surface-raised',
+  danger: 'border-danger bg-danger text-danger-foreground hover:border-error hover:bg-error-border',
 };
 
 /** ボタンとボタン形式リンクで使用するクラス名を作成する。 */

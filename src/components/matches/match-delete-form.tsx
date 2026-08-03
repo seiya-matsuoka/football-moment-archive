@@ -8,7 +8,6 @@ import type { FormEvent } from 'react';
 import { useActionState } from 'react';
 
 import { Button } from '@/components/common/button';
-import { Panel } from '@/components/common/panel';
 import type { MatchDeleteAction, MatchDeleteState } from '@/types/match-action';
 
 type MatchDeleteFormProps = {
@@ -18,7 +17,7 @@ type MatchDeleteFormProps = {
   momentCount: number;
 };
 
-/** 関連場面の有無に応じて削除可否を案内し、削除処理を実行する。 */
+/** 関連場面がない場合だけ試合を削除できる Danger Zone を表示する。 */
 export function MatchDeleteForm({ action, momentCount }: MatchDeleteFormProps) {
   const initialState: MatchDeleteState = {
     status: 'idle',
@@ -35,34 +34,45 @@ export function MatchDeleteForm({ action, momentCount }: MatchDeleteFormProps) {
   }
 
   return (
-    <section aria-labelledby="match-delete-title">
-      <h2 id="match-delete-title" className="text-text text-xl font-semibold">
-        試合の削除
-      </h2>
-
-      <Panel tone={!canDelete || state.status === 'error' ? 'error' : 'default'} className="mt-4">
-        {canDelete ? (
-          <p className="text-sm leading-6">
-            この試合に関連する場面はありません。削除すると元に戻せません。
+    <section
+      aria-labelledby="match-delete-title"
+      className="border-error-border bg-error-background rounded-panel border p-5 sm:p-6"
+    >
+      <div className="grid gap-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end sm:gap-8">
+        <div className="max-w-3xl min-w-0">
+          <p className="text-error text-[0.68rem] font-bold tracking-[0.18em] uppercase">
+            Danger Zone
           </p>
-        ) : (
-          <p className="text-sm leading-6">
-            関連する場面が {momentCount} 件存在するため、この試合は削除できません。
+          <h2 id="match-delete-title" className="text-error mt-1 text-xl font-semibold">
+            試合の削除
+          </h2>
+          <p className="text-error mt-3 text-sm leading-7">
+            {canDelete
+              ? 'この試合を削除します。この操作は元に戻せません。'
+              : `関連する場面が ${momentCount} 件存在するため、この試合は削除できません。先に関連場面を削除してください。`}
           </p>
-        )}
+          {state.message ? (
+            <p role="alert" className="text-error mt-3 text-sm leading-6">
+              {state.message}
+            </p>
+          ) : null}
+        </div>
 
-        {state.message ? (
-          <p role="alert" className="mt-3 text-sm leading-6">
-            {state.message}
-          </p>
-        ) : null}
-
-        <form action={formAction} onSubmit={handleSubmit} className="mt-4">
-          <Button type="submit" variant="danger" disabled={!canDelete || isPending}>
+        <form
+          action={formAction}
+          onSubmit={handleSubmit}
+          className="flex shrink-0 justify-end self-end sm:justify-self-end"
+        >
+          <Button
+            type="submit"
+            variant="danger"
+            disabled={!canDelete || isPending}
+            className="min-w-32"
+          >
             {isPending ? '削除中' : '試合を削除'}
           </Button>
         </form>
-      </Panel>
+      </div>
     </section>
   );
 }

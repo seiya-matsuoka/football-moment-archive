@@ -3,8 +3,9 @@
  */
 
 import { Button } from '@/components/common/button';
+import { filterControlClassName } from '@/components/common/form-ui';
 import { LinkButton } from '@/components/common/link-button';
-import { Panel } from '@/components/common/panel';
+import { SectionHeader } from '@/components/common/section-header';
 import { MOMENT_SORT_OPTIONS, MOMENT_TYPE_OPTIONS, TEAM_OPTIONS } from '@/lib/constants';
 import type { MomentListQuery } from '@/types/moment';
 
@@ -13,44 +14,51 @@ type MomentListFilterFormProps = {
   query: MomentListQuery;
 };
 
-/** 検索フォームの入力要素へ共通して適用するスタイル。 */
-const formControlClassName =
-  'mt-2 min-h-11 w-full rounded-control border border-border bg-surface px-3 py-2 text-base text-text focus:outline-2 focus:outline-offset-2 focus:outline-focus';
+const filterLabelClassName = 'text-muted text-xs font-semibold tracking-wide';
 
-/**
- * `page` を送信項目に含めず、条件を適用したときは必ず 1 ページ目へ戻す。
- */
+/** 条件適用時に `page` を送信せず、常に 1 ページ目から検索する。 */
 export function MomentListFilterForm({ query }: MomentListFilterFormProps) {
   return (
-    <Panel>
-      <form action="/moments" method="get">
+    <section
+      aria-labelledby="moment-filter-title"
+      className="border-border/55 bg-surface-muted rounded-panel border p-4 sm:p-5"
+    >
+      <SectionHeader
+        eyebrow="Filter"
+        title="場面を絞り込む"
+        titleId="moment-filter-title"
+        description="検索・絞り込み・並び替え条件は URL に保持されます。"
+        size="compact"
+      />
+
+      <form action="/moments" method="get" className="mt-5">
         <fieldset className="min-w-0 border-0 p-0">
-          <legend className="text-text text-base font-semibold">一覧条件</legend>
+          <legend className="sr-only">場面一覧の検索・絞り込み・並び替え条件</legend>
 
-          <div className="mt-4">
-            <label htmlFor="moment-list-keyword" className="text-text text-sm font-medium">
-              キーワード
-            </label>
-            <input
-              id="moment-list-keyword"
-              name="keyword"
-              type="search"
-              defaultValue={query.keyword}
-              className={formControlClassName}
-              placeholder="タイトル、対象、場面の内容、印象に残った理由"
-            />
-          </div>
+          <div className="grid gap-3 lg:grid-cols-12">
+            <div className="lg:col-span-6">
+              <label htmlFor="moment-list-keyword" className={filterLabelClassName}>
+                キーワード
+              </label>
+              <input
+                id="moment-list-keyword"
+                name="keyword"
+                type="search"
+                defaultValue={query.keyword}
+                className={filterControlClassName}
+                placeholder="タイトル、対象、場面の内容、印象に残った理由"
+              />
+            </div>
 
-          <div className="mt-5 grid gap-5 sm:grid-cols-3">
-            <div>
-              <label htmlFor="moment-list-team" className="text-text text-sm font-medium">
+            <div className="lg:col-span-2">
+              <label htmlFor="moment-list-team" className={filterLabelClassName}>
                 チーム
               </label>
               <select
                 id="moment-list-team"
                 name="team"
                 defaultValue={query.team ?? ''}
-                className={formControlClassName}
+                className={filterControlClassName}
               >
                 <option value="">指定なし</option>
                 {TEAM_OPTIONS.map((team) => (
@@ -61,15 +69,15 @@ export function MomentListFilterForm({ query }: MomentListFilterFormProps) {
               </select>
             </div>
 
-            <div>
-              <label htmlFor="moment-list-type" className="text-text text-sm font-medium">
+            <div className="lg:col-span-2">
+              <label htmlFor="moment-list-type" className={filterLabelClassName}>
                 場面の種類
               </label>
               <select
                 id="moment-list-type"
                 name="type"
                 defaultValue={query.momentType ?? ''}
-                className={formControlClassName}
+                className={filterControlClassName}
               >
                 <option value="">指定なし</option>
                 {MOMENT_TYPE_OPTIONS.map((option) => (
@@ -80,15 +88,15 @@ export function MomentListFilterForm({ query }: MomentListFilterFormProps) {
               </select>
             </div>
 
-            <div>
-              <label htmlFor="moment-list-sort" className="text-text text-sm font-medium">
+            <div className="lg:col-span-2">
+              <label htmlFor="moment-list-sort" className={filterLabelClassName}>
                 並び替え
               </label>
               <select
                 id="moment-list-sort"
                 name="sort"
                 defaultValue={query.sort}
-                className={formControlClassName}
+                className={filterControlClassName}
               >
                 {MOMENT_SORT_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -99,25 +107,32 @@ export function MomentListFilterForm({ query }: MomentListFilterFormProps) {
             </div>
           </div>
 
-          <label className="text-text mt-5 flex min-h-11 cursor-pointer items-center gap-3 text-sm font-medium">
-            <input
-              name="favorite"
-              type="checkbox"
-              value="true"
-              defaultChecked={query.favoriteOnly}
-              className="rounded-control border-border accent-accent focus-visible:outline-focus h-5 w-5 focus-visible:outline-2 focus-visible:outline-offset-2"
-            />
-            お気に入りの場面だけを表示する
-          </label>
+          <div className="border-border/40 mt-4 flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
+            <label className="text-text border-border/55 bg-surface rounded-control flex min-h-11 cursor-pointer items-center gap-3 border px-3 py-2 text-sm font-medium">
+              <input
+                name="favorite"
+                type="checkbox"
+                value="true"
+                defaultChecked={query.favoriteOnly}
+                className="border-border accent-favorite focus-visible:outline-focus h-5 w-5 rounded focus-visible:outline-2 focus-visible:outline-offset-2"
+              />
+              <span>
+                <span aria-hidden="true" className="text-favorite mr-1.5">
+                  ★
+                </span>
+                お気に入りだけ
+              </span>
+            </label>
 
-          <div className="mt-5 flex flex-wrap gap-3">
-            <Button type="submit" variant="primary">
-              条件を適用
-            </Button>
-            <LinkButton href="/moments">条件をリセット</LinkButton>
+            <div className="flex flex-wrap gap-2">
+              <Button type="submit" variant="primary">
+                条件を適用
+              </Button>
+              <LinkButton href="/moments">条件をリセット</LinkButton>
+            </div>
           </div>
         </fieldset>
       </form>
-    </Panel>
+    </section>
   );
 }

@@ -26,8 +26,9 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
   }, [error]);
 
   return (
-    <div className="space-y-section">
+    <div className="space-y-6 sm:space-y-8">
       <PageHeader
+        eyebrow="Error"
         title="処理を完了できませんでした"
         description="一時的な問題が発生した可能性があります。再試行するか、別の画面から操作をやり直してください。"
       />

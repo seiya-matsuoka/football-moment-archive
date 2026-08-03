@@ -4,7 +4,6 @@
 
 import type { Metadata } from 'next';
 
-import { LinkButton } from '@/components/common/link-button';
 import { PageHeader } from '@/components/common/page-header';
 import { Panel } from '@/components/common/panel';
 import { MatchForm } from '@/components/matches/match-form';
@@ -28,11 +27,12 @@ export default async function NewMatchPage() {
   const hasReachedLimit = matchCount >= DATA_LIMITS.matches;
 
   return (
-    <div className="space-y-section">
+    <div className="space-y-6 sm:space-y-8">
       <PageHeader
+        eyebrow="New Match"
         title="試合登録"
         description="場面を記録する対象となる試合を登録します。"
-        actions={<LinkButton href="/matches">試合一覧へ戻る</LinkButton>}
+        backLink={{ href: '/matches', label: '試合一覧へ戻る' }}
       />
 
       {hasReachedLimit ? (

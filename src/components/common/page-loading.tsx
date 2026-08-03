@@ -24,10 +24,31 @@ function LoadingBlock({ className }: LoadingBlockProps) {
 /** 各ページで共通する見出し部分のプレースホルダー。 */
 function LoadingHeader() {
   return (
-    <div className="border-border pb-section border-b">
-      <LoadingBlock className="h-10 w-2/3 max-w-xl" />
+    <div className="border-border/60 border-b pb-7">
+      <LoadingBlock className="h-3 w-24" />
+      <LoadingBlock className="mt-3 h-10 w-2/3 max-w-xl" />
       <LoadingBlock className="mt-4 h-5 w-full max-w-2xl" />
       <LoadingBlock className="mt-2 h-5 w-4/5 max-w-xl" />
+    </div>
+  );
+}
+
+/** カードグリッド部分を表すプレースホルダー。 */
+function CardGrid({ count = 2 }: { count?: number }) {
+  return (
+    <div className="grid gap-4 lg:grid-cols-2">
+      {Array.from({ length: count }, (_, index) => (
+        <Panel key={index}>
+          <div className="grid gap-4 text-center sm:grid-cols-3">
+            <LoadingBlock className="h-12 w-full" />
+            <LoadingBlock className="h-12 w-full" />
+            <LoadingBlock className="h-12 w-full" />
+          </div>
+          <div className="border-border/45 mt-5 border-t pt-4">
+            <LoadingBlock className="h-10 w-full" />
+          </div>
+        </Panel>
+      ))}
     </div>
   );
 }
@@ -37,40 +58,14 @@ function HomeLoadingContent() {
   return (
     <>
       <Panel>
-        <LoadingBlock className="h-6 w-28" />
-        <div className="mt-5 grid gap-5 sm:grid-cols-2">
-          <LoadingBlock className="h-14 w-full" />
-          <LoadingBlock className="h-14 w-full" />
-        </div>
+        <LoadingBlock className="h-24 w-full" />
       </Panel>
-
+      <Panel>
+        <LoadingBlock className="h-40 w-full" />
+      </Panel>
       <section>
-        <LoadingBlock className="h-7 w-32" />
-        <div className="mt-5 grid gap-4 lg:grid-cols-3">
-          {Array.from({ length: 3 }, (_, index) => (
-            <Panel key={index}>
-              <LoadingBlock className="h-5 w-28" />
-              <LoadingBlock className="mt-3 h-9 w-20" />
-              <LoadingBlock className="mt-5 h-10 w-36" />
-            </Panel>
-          ))}
-        </div>
-      </section>
-
-      <section>
-        <LoadingBlock className="h-7 w-44" />
-        <div className="mt-5 grid gap-4">
-          {Array.from({ length: 2 }, (_, index) => (
-            <Panel key={index}>
-              <LoadingBlock className="h-6 w-2/3" />
-              <LoadingBlock className="mt-3 h-5 w-24" />
-              <div className="border-border mt-5 grid gap-4 border-t pt-5 sm:grid-cols-2">
-                <LoadingBlock className="h-12 w-full" />
-                <LoadingBlock className="h-12 w-full" />
-              </div>
-            </Panel>
-          ))}
-        </div>
+        <LoadingBlock className="mb-4 h-7 w-52" />
+        <CardGrid />
       </section>
     </>
   );
@@ -81,32 +76,11 @@ function ListLoadingContent() {
   return (
     <>
       <Panel tone="muted">
-        <div className="grid gap-4 sm:grid-cols-2">
-          <LoadingBlock className="h-14 w-full" />
-          <LoadingBlock className="h-14 w-full" />
-        </div>
+        <LoadingBlock className="h-28 w-full" />
       </Panel>
-
-      <Panel>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <LoadingBlock className="h-16 w-full" />
-          <LoadingBlock className="h-16 w-full" />
-          <LoadingBlock className="h-16 w-full" />
-        </div>
-        <LoadingBlock className="mt-5 h-10 w-32" />
-      </Panel>
-
       <section>
-        <LoadingBlock className="h-7 w-32" />
-        <div className="mt-5 grid gap-4">
-          {Array.from({ length: 2 }, (_, index) => (
-            <Panel key={index}>
-              <LoadingBlock className="h-6 w-2/3" />
-              <LoadingBlock className="mt-3 h-5 w-32" />
-              <LoadingBlock className="mt-5 h-16 w-full" />
-            </Panel>
-          ))}
-        </div>
+        <LoadingBlock className="mb-4 h-7 w-36" />
+        <CardGrid count={4} />
       </section>
     </>
   );
@@ -117,40 +91,29 @@ function DetailLoadingContent() {
   return (
     <>
       <Panel>
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }, (_, index) => (
-            <LoadingBlock key={index} className="h-14 w-full" />
-          ))}
-        </div>
+        <LoadingBlock className="h-56 w-full" />
       </Panel>
-
-      <section>
-        <LoadingBlock className="h-7 w-40" />
-        <Panel className="mt-5">
-          <LoadingBlock className="h-6 w-2/3" />
-          <LoadingBlock className="mt-3 h-5 w-28" />
-          <LoadingBlock className="mt-5 h-20 w-full" />
-        </Panel>
-      </section>
+      <Panel>
+        <LoadingBlock className="h-40 w-full" />
+      </Panel>
+      <Panel tone="error">
+        <LoadingBlock className="h-24 w-full" />
+      </Panel>
     </>
   );
 }
 
-/**
- * `loading.tsx` が自動的に作る Suspense Boundary の fallback として、
- * 対象ページの大まかな構造が分かる表示を提供する。
- */
+/** Route Segment の大まかな構造が分かる Skeleton を表示する。 */
 export function PageLoading({ variant }: PageLoadingProps) {
   return (
     <div
       role="status"
       aria-live="polite"
       aria-busy="true"
-      className="space-y-section animate-pulse"
+      className="animate-pulse space-y-6 sm:space-y-8"
     >
       <span className="sr-only">ページを読み込んでいます。</span>
       <LoadingHeader />
-
       {variant === 'home' ? <HomeLoadingContent /> : null}
       {variant === 'list' ? <ListLoadingContent /> : null}
       {variant === 'detail' ? <DetailLoadingContent /> : null}

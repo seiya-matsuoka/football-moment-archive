@@ -32,40 +32,39 @@ function createPageHref(pathname: string, searchParams: URLSearchParams, page: n
   return queryString ? `${pathname}?${queryString}` : pathname;
 }
 
-/** 前後移動と全ページ番号を表示する。 */
+/** 前後移動と全ページ番号を Compact な Footer として表示する。 */
 export function Pagination({ pathname, currentPage, totalPages, searchParams }: PaginationProps) {
   if (totalPages <= 1) {
     return null;
   }
 
   const pages = Array.from({ length: totalPages }, (_, index) => index + 1);
-  const previousPage = currentPage - 1;
-  const nextPage = currentPage + 1;
+  const inactiveClassName = getButtonClassName('secondary', 'min-w-10 px-3 tabular-nums');
 
   return (
     <nav
       aria-label="ページネーション"
-      className="border-border mt-section pt-section flex flex-col gap-4 border-t sm:flex-row sm:items-center sm:justify-between"
+      className="border-border/45 mt-5 flex flex-col gap-3 border-t pt-5 sm:flex-row sm:items-center sm:justify-between"
     >
-      <p className="text-muted text-sm">
-        {currentPage} / {totalPages} ページ
+      <p className="text-muted text-xs font-semibold tracking-wide uppercase tabular-nums">
+        Page {currentPage} / {totalPages}
       </p>
 
       <div className="flex flex-wrap items-center gap-2">
         {currentPage > 1 ? (
           <Link
-            href={createPageHref(pathname, searchParams, previousPage)}
+            href={createPageHref(pathname, searchParams, currentPage - 1)}
             className={getButtonClassName('secondary')}
             rel="prev"
           >
-            前ページ
+            前へ
           </Link>
         ) : (
           <span
             aria-disabled="true"
-            className={getButtonClassName('secondary', 'cursor-not-allowed opacity-60')}
+            className={getButtonClassName('secondary', 'cursor-not-allowed opacity-45')}
           >
-            前ページ
+            前へ
           </span>
         )}
 
@@ -75,7 +74,7 @@ export function Pagination({ pathname, currentPage, totalPages, searchParams }: 
               key={page}
               aria-current="page"
               aria-label={`${page} ページ目・現在のページ`}
-              className={getButtonClassName('primary', 'min-w-10 px-3')}
+              className={getButtonClassName('primary', 'min-w-10 px-3 tabular-nums')}
             >
               {page}
             </span>
@@ -84,7 +83,7 @@ export function Pagination({ pathname, currentPage, totalPages, searchParams }: 
               key={page}
               href={createPageHref(pathname, searchParams, page)}
               aria-label={`${page} ページ目へ移動`}
-              className={getButtonClassName('secondary', 'min-w-10 px-3')}
+              className={inactiveClassName}
             >
               {page}
             </Link>
@@ -93,18 +92,18 @@ export function Pagination({ pathname, currentPage, totalPages, searchParams }: 
 
         {currentPage < totalPages ? (
           <Link
-            href={createPageHref(pathname, searchParams, nextPage)}
+            href={createPageHref(pathname, searchParams, currentPage + 1)}
             className={getButtonClassName('secondary')}
             rel="next"
           >
-            次ページ
+            次へ
           </Link>
         ) : (
           <span
             aria-disabled="true"
-            className={getButtonClassName('secondary', 'cursor-not-allowed opacity-60')}
+            className={getButtonClassName('secondary', 'cursor-not-allowed opacity-45')}
           >
-            次ページ
+            次へ
           </span>
         )}
       </div>
