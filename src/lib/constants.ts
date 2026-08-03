@@ -6,6 +6,9 @@
 /** アプリ名。Metadata や共通ヘッダーで使用する。 */
 export const APP_NAME = 'Football Moment Archive';
 
+/** 狭い画面の共通ヘッダーで使用するアプリ名の短縮表記。 */
+export const APP_SHORT_NAME = 'FMA';
+
 /** アプリの概要。Metadata やホーム画面で使用する。 */
 export const APP_DESCRIPTION = 'サッカーの試合で記憶に残った場面を記録する Web アプリケーション';
 
