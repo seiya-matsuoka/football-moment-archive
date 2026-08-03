@@ -56,44 +56,46 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
   const firstItemNumber = filteredMatchCount === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1;
   const lastItemNumber = Math.min(currentPage * ITEMS_PER_PAGE, filteredMatchCount);
 
+  const headerMetadata = (
+    <dl className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+      <div className="flex items-baseline gap-1.5">
+        <dt className="text-muted">登録</dt>
+        <dd className="text-text font-semibold tabular-nums">
+          {matchCount}
+          <span className="text-muted ml-1 text-xs font-normal">件</span>
+        </dd>
+      </div>
+      <div className="border-border/50 flex items-baseline gap-1.5 sm:border-l sm:pl-4">
+        <dt className="text-muted">条件一致</dt>
+        <dd className="text-text font-semibold tabular-nums">
+          {filteredMatchCount}
+          <span className="text-muted ml-1 text-xs font-normal">件</span>
+        </dd>
+      </div>
+    </dl>
+  );
+
+  const headerActions = hasReachedLimit ? (
+    <div className="max-w-xs text-right">
+      <Button disabled>試合を登録</Button>
+      <p className="text-muted mt-2 text-xs leading-5">
+        最大 {DATA_LIMITS.matches} 件に到達しています。
+      </p>
+    </div>
+  ) : (
+    <LinkButton href="/matches/new" variant="primary">
+      試合を登録
+    </LinkButton>
+  );
+
   return (
     <div className="space-y-6 sm:space-y-7">
       <PageHeader
         eyebrow="Matches"
         title="試合一覧"
         description="登録済みの試合をチームで絞り込み、試合日や登録日時の順に確認します。"
-        metadata={
-          <dl className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
-            <div className="flex items-baseline gap-1.5">
-              <dt className="text-muted">登録</dt>
-              <dd className="text-text font-semibold tabular-nums">
-                {matchCount}
-                <span className="text-muted ml-1 text-xs font-normal">件</span>
-              </dd>
-            </div>
-            <div className="border-border/50 flex items-baseline gap-1.5 sm:border-l sm:pl-4">
-              <dt className="text-muted">条件一致</dt>
-              <dd className="text-text font-semibold tabular-nums">
-                {filteredMatchCount}
-                <span className="text-muted ml-1 text-xs font-normal">件</span>
-              </dd>
-            </div>
-          </dl>
-        }
-        actions={
-          hasReachedLimit ? (
-            <div className="max-w-xs text-right">
-              <Button disabled>試合を登録</Button>
-              <p className="text-muted mt-2 text-xs leading-5">
-                最大 {DATA_LIMITS.matches} 件に到達しています。
-              </p>
-            </div>
-          ) : (
-            <LinkButton href="/matches/new" variant="primary">
-              試合を登録
-            </LinkButton>
-          )
-        }
+        metadata={headerMetadata}
+        actions={headerActions}
       />
 
       <MatchListFilterForm query={query} />

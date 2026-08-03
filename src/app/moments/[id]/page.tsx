@@ -45,7 +45,7 @@ export default async function MomentDetailPage({ params }: MomentDetailPageProps
   const favoriteActionWithId = toggleMomentFavoriteAction.bind(null, moment.id);
   const deleteActionWithId = deleteMomentAction.bind(null, moment.id);
 
-  const metadata = (
+  const headerMetadata = (
     <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
       <span className="border-accent/45 bg-accent/10 text-accent inline-flex min-h-7 items-center rounded-full border px-2.5 py-1 text-xs font-bold tracking-wide">
         {getMomentTypeLabel(moment.momentType)}
@@ -62,21 +62,23 @@ export default async function MomentDetailPage({ params }: MomentDetailPageProps
     </div>
   );
 
+  const headerActions = (
+    <>
+      <FavoriteToggleForm action={favoriteActionWithId} isFavorite={moment.isFavorite} />
+      <LinkButton href={`/moments/${moment.id}/edit`} variant="primary">
+        場面を編集
+      </LinkButton>
+    </>
+  );
+
   return (
     <div className="space-y-6 sm:space-y-8">
       <PageHeader
         eyebrow="Moment"
         title={moment.title}
-        metadata={metadata}
+        metadata={headerMetadata}
         backLink={{ href: '/moments', label: '場面一覧へ戻る' }}
-        actions={
-          <>
-            <FavoriteToggleForm action={favoriteActionWithId} isFavorite={moment.isFavorite} />
-            <LinkButton href={`/moments/${moment.id}/edit`} variant="primary">
-              場面を編集
-            </LinkButton>
-          </>
-        }
+        actions={headerActions}
       />
 
       <div className="grid gap-5 sm:gap-6">
