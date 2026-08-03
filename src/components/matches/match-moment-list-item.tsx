@@ -13,7 +13,7 @@ type MatchMomentListItemProps = {
 /** 場面一覧と共通する要約表示を、関連試合を省いた Card として表示する。 */
 export function MatchMomentListItem({ moment }: MatchMomentListItemProps) {
   return (
-    <li className="border-border/65 bg-surface hover:border-border-strong/75 hover:bg-surface-raised rounded-panel shadow-panel border p-4 transition-colors sm:p-5">
+    <li className="border-border/65 bg-surface rounded-panel shadow-panel border p-4 sm:p-5">
       <MomentSummary moment={moment} headingLevel={3} />
     </li>
   );
