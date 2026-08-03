@@ -5,8 +5,8 @@
 import Link from 'next/link';
 
 import { getMomentTypeLabel } from '@/lib/format';
-import type { MomentFavoriteAction } from '@/types/moment-action';
 import type { Moment } from '@/types/moment';
+import type { MomentFavoriteAction } from '@/types/moment-action';
 
 import { FavoriteToggleForm } from './favorite-toggle-form';
 
@@ -19,7 +19,7 @@ type MomentSummaryProps = {
   favoriteAction?: MomentFavoriteAction;
 };
 
-/** 種別・発生時間、タイトル、対象、お気に入りを一覧用の情報階層で表示する。 */
+/** 種別・発生時間、タイトル、対象、お気に入り、詳細導線を一覧用の情報階層で表示する。 */
 export function MomentSummary({ moment, headingLevel, favoriteAction }: MomentSummaryProps) {
   const Heading = headingLevel === 2 ? 'h2' : 'h3';
 
@@ -38,22 +38,19 @@ export function MomentSummary({ moment, headingLevel, favoriteAction }: MomentSu
             ) : null}
           </div>
 
-          <Heading className="text-text mt-3 text-lg leading-snug font-semibold sm:text-xl">
-            <Link
-              href={`/moments/${moment.id}`}
-              className="hover:text-accent focus-visible:outline-focus rounded-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
-            >
-              {moment.title}
-            </Link>
+          <Heading className="text-text mt-3 text-lg leading-snug font-semibold wrap-break-word sm:text-xl">
+            {moment.title}
           </Heading>
 
           {moment.subject ? (
-            <p className="text-muted mt-2 text-sm leading-6 wrap-break-word">
-              <span className="text-subtle mr-2 text-xs font-bold tracking-[0.12em] uppercase">
-                Subject
-              </span>
-              {moment.subject}
-            </p>
+            <dl className="mt-3">
+              <div>
+                <dt className="text-muted text-xs font-medium">対象</dt>
+                <dd className="text-text mt-1.5 text-sm leading-6 wrap-break-word">
+                  {moment.subject}
+                </dd>
+              </div>
+            </dl>
           ) : null}
         </div>
 
@@ -74,6 +71,19 @@ export function MomentSummary({ moment, headingLevel, favoriteAction }: MomentSu
             </p>
           )}
         </div>
+      </div>
+
+      <div className="mt-4 flex justify-end">
+        <Link
+          href={`/moments/${moment.id}`}
+          aria-label={`${moment.title}の場面詳細を見る`}
+          className="text-accent hover:text-text focus-visible:outline-focus rounded-control inline-flex min-h-10 items-center text-sm font-semibold whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
+        >
+          場面詳細を見る
+          <span aria-hidden="true" className="ml-1.5">
+            →
+          </span>
+        </Link>
       </div>
     </div>
   );
