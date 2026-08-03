@@ -41,17 +41,6 @@ export function MomentSummary({ moment, headingLevel, favoriteAction }: MomentSu
           <Heading className="text-text mt-3 text-lg leading-snug font-semibold wrap-break-word sm:text-xl">
             {moment.title}
           </Heading>
-
-          {moment.subject ? (
-            <dl className="mt-3">
-              <div>
-                <dt className="text-muted text-xs font-medium">対象</dt>
-                <dd className="text-text mt-1.5 text-sm leading-6 wrap-break-word">
-                  {moment.subject}
-                </dd>
-              </div>
-            </dl>
-          ) : null}
         </div>
 
         <div className="shrink-0">
@@ -73,11 +62,22 @@ export function MomentSummary({ moment, headingLevel, favoriteAction }: MomentSu
         </div>
       </div>
 
-      <div className="mt-4 flex justify-end">
+      <div className="mt-4 flex items-end gap-4">
+        {moment.subject ? (
+          <dl className="min-w-0 flex-1">
+            <div>
+              <dt className="text-muted text-xs font-medium">対象</dt>
+              <dd className="text-text mt-1.5 text-sm leading-6 wrap-break-word">
+                {moment.subject}
+              </dd>
+            </div>
+          </dl>
+        ) : null}
+
         <Link
           href={`/moments/${moment.id}`}
           aria-label={`${moment.title}の場面詳細を見る`}
-          className="text-accent hover:text-text focus-visible:outline-focus rounded-control inline-flex min-h-10 items-center text-sm font-semibold whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
+          className="text-accent hover:text-text focus-visible:outline-focus rounded-control ml-auto inline-flex min-h-10 shrink-0 items-center text-sm font-semibold whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
         >
           場面詳細を見る
           <span aria-hidden="true" className="ml-1.5">
