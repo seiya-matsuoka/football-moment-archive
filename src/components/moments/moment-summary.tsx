@@ -25,22 +25,14 @@ export function MomentSummary({ moment, headingLevel, favoriteAction }: MomentSu
 
   return (
     <div className="min-w-0">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-5">
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="border-accent/45 bg-accent/10 text-accent inline-flex min-h-7 items-center rounded-full border px-2.5 py-1 text-xs font-bold tracking-wide">
-              {getMomentTypeLabel(moment.momentType)}
-            </span>
-            {moment.timeLabel ? (
-              <span className="text-muted text-xs font-medium tabular-nums">
-                {moment.timeLabel}
-              </span>
-            ) : null}
-          </div>
-
-          <Heading className="text-text mt-3 text-lg leading-snug font-semibold wrap-break-word sm:text-xl">
-            {moment.title}
-          </Heading>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+          <span className="border-accent/45 bg-accent/10 text-accent inline-flex min-h-7 items-center rounded-full border px-2.5 py-1 text-xs font-bold tracking-wide">
+            {getMomentTypeLabel(moment.momentType)}
+          </span>
+          {moment.timeLabel ? (
+            <span className="text-muted text-xs font-medium tabular-nums">{moment.timeLabel}</span>
+          ) : null}
         </div>
 
         <div className="shrink-0">
@@ -49,7 +41,7 @@ export function MomentSummary({ moment, headingLevel, favoriteAction }: MomentSu
           ) : (
             <p
               className={[
-                'text-sm font-semibold',
+                'text-sm font-semibold whitespace-nowrap',
                 moment.isFavorite ? 'text-favorite' : 'text-muted',
               ].join(' ')}
             >
@@ -61,6 +53,10 @@ export function MomentSummary({ moment, headingLevel, favoriteAction }: MomentSu
           )}
         </div>
       </div>
+
+      <Heading className="text-text mt-3 text-lg leading-snug font-semibold wrap-break-word sm:text-xl">
+        {moment.title}
+      </Heading>
 
       <div className="mt-4 flex items-end gap-4">
         {moment.subject ? (
