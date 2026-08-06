@@ -29,20 +29,22 @@ export default async function HomePage() {
     getRecentMoments(),
   ]);
 
+  const headerActions = (
+    <>
+      <LinkButton href="/matches">試合を見る</LinkButton>
+      <LinkButton href="/moments" variant="primary">
+        場面を見る
+      </LinkButton>
+    </>
+  );
+
   return (
     <div className="space-y-6 sm:space-y-8">
       <PageHeader
         eyebrow="Football Archive"
         title={APP_NAME}
         description={APP_DESCRIPTION}
-        actions={
-          <>
-            <LinkButton href="/matches">試合を見る</LinkButton>
-            <LinkButton href="/moments" variant="primary">
-              場面を見る
-            </LinkButton>
-          </>
-        }
+        actions={headerActions}
       />
 
       <section

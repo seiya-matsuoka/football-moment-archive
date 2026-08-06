@@ -44,7 +44,7 @@ export function GlobalNavigation() {
 
   return (
     <nav aria-label="グローバルナビゲーション">
-      <ul className="flex flex-wrap items-center gap-1">
+      <ul className="flex items-center gap-1 lg:gap-2">
         {navigationItems.map((item) => {
           const isCurrent = isCurrentPath(pathname, item.href);
 
@@ -52,6 +52,7 @@ export function GlobalNavigation() {
             <li key={item.href}>
               <Link
                 href={item.href}
+                aria-label={item.label}
                 aria-current={isCurrent ? 'page' : undefined}
                 className={`${navigationLinkBaseClassName} ${
                   isCurrent

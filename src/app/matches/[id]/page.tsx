@@ -53,31 +53,33 @@ export default async function MatchDetailPage({ params }: MatchDetailPageProps) 
   const deleteActionWithId = deleteMatchAction.bind(null, match.id);
   const hasReachedMomentLimit = momentCount >= DATA_LIMITS.moments;
 
+  const headerMetadata = (
+    <dl className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+      <div className="flex items-baseline gap-1.5">
+        <dt className="text-muted">試合日</dt>
+        <dd className="text-text font-medium tabular-nums">{formatMatchDate(match.matchDate)}</dd>
+      </div>
+      <div className="border-border/50 flex items-baseline gap-1.5 sm:border-l sm:pl-4">
+        <dt className="text-muted">関連する場面</dt>
+        <dd className="text-text font-medium tabular-nums">{moments.length} 件</dd>
+      </div>
+    </dl>
+  );
+
+  const headerActions = (
+    <LinkButton href={`/matches/${match.id}/edit`} variant="primary">
+      試合を編集
+    </LinkButton>
+  );
+
   return (
     <div className="space-y-6 sm:space-y-8">
       <PageHeader
         eyebrow="Match"
         title={fixture}
-        metadata={
-          <dl className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
-            <div className="flex items-baseline gap-1.5">
-              <dt className="text-muted">試合日</dt>
-              <dd className="text-text font-medium tabular-nums">
-                {formatMatchDate(match.matchDate)}
-              </dd>
-            </div>
-            <div className="border-border/50 flex items-baseline gap-1.5 sm:border-l sm:pl-4">
-              <dt className="text-muted">関連する場面</dt>
-              <dd className="text-text font-medium tabular-nums">{moments.length} 件</dd>
-            </div>
-          </dl>
-        }
+        metadata={headerMetadata}
         backLink={{ href: '/matches', label: '試合一覧へ戻る' }}
-        actions={
-          <LinkButton href={`/matches/${match.id}/edit`} variant="primary">
-            試合を編集
-          </LinkButton>
-        }
+        actions={headerActions}
       />
 
       <MatchDetail match={match} />

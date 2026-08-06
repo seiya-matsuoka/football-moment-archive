@@ -23,7 +23,7 @@ export function MomentListItem({ moment, favoriteAction, headingLevel }: MomentL
   const RelatedMatchHeading = headingLevel === 2 ? 'h3' : 'h4';
 
   return (
-    <li className="border-border/65 bg-surface hover:border-border-strong/75 hover:bg-surface-raised rounded-panel shadow-panel flex h-full min-w-0 flex-col border p-4 transition-colors sm:p-5">
+    <li className="border-border/65 bg-surface rounded-panel shadow-panel flex h-full min-w-0 flex-col border p-4 sm:p-5">
       <MomentSummary
         moment={moment}
         headingLevel={headingLevel}
